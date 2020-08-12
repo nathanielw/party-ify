@@ -1,0 +1,16 @@
+
+@use '../core/colours';
+@use '../core/type';
+
+.Button {
+	padding: 12px 48px;
+	font-family: type.$familyHeadings;
+	text-transform: lowercase;
+	font-size: 1.5rem;
+	background: colours.$kakapoGreen;
+	color: #ffffff;
+	border: none;
+	border-radius: 2em;
+	box-shadow: 8px 8px 0 colours.$kakapoGreen--dark;
+	cursor: pointer;
+}

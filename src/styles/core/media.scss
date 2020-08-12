@@ -1,0 +1,9 @@
+$breakpoints: (
+	sm: 480px,
+	md: 740px,
+	lg: 1000px,
+);
+
+$sm: '(min-width: #{map-get($breakpoints, sm)})';
+$md: '(min-width: #{map-get($breakpoints, md)})';
+$lg: '(min-width: #{map-get($breakpoints, lg)})';

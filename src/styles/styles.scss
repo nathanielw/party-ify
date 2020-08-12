@@ -1,2 +1,5 @@
-@import './core/colours.scss';
-@import './components/App.scss';
+@import './core/reset';
+@import './components/Root';
+@import './components/App';
+@import './components/Intro';
+@import './components/Button';

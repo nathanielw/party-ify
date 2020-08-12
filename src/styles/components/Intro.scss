@@ -1,0 +1,35 @@
+@use '../core/type';
+@use '../core/colours';
+@use '../core/media';
+
+.Intro {
+	font-family: type.$familyHeadings;
+	text-transform: lowercase;
+	color: colours.$flamingoPink;
+	text-shadow: 2px 2px 0 #FFD79C, 4px 4px 0 #ff880a9c, 6px 6px 0 #f9a77f87, 8px 8px 0 #ffd0ce;
+	line-height: 0.9;
+	transform: skewY(-4deg);
+	margin-bottom: 150px;
+	margin-top: 150px;
+
+	@media #{media.$md} {
+		text-align: center;
+	}
+}
+
+.Intro__Title {
+	margin-bottom: 0.25em;
+	font-size: 4rem;
+
+	@media #{media.$sm} {
+		font-size: 5rem;
+	}
+}
+
+.Intro__Description {
+	font-size: 2.5rem;
+
+	@media #{media.$sm} {
+		font-size: 3rem;
+	}
+}

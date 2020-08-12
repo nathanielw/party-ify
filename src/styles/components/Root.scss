@@ -1,0 +1,15 @@
+@use '../core/colours';
+@use '../core/type';
+
+.Root {
+	background: colours.$canaryYellow;
+}
+
+html {
+	font-family: type.$familyBody;
+	font-size: type.$baseSize;
+}
+
+* {
+	box-sizing: border-box;
+}
