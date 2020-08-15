@@ -157,17 +157,23 @@ export default function Creator(): JSX.Element {
 
 		let updateLoopRef: number | undefined;
 		let renderIteration = lastRenderIteration;
-		let lastUpdatedAt = lastRenderTime || Date.now();
+		let lastUpdatedAt = lastRenderTime || performance.now();
+		let lastLoopedAt = lastUpdatedAt;
 
 		const updateLoop = () => {
-			renderFrame(renderIteration, offscreenOutputCtx, imagePrepCanvas, imageSizing, settings);
-
-			const now = Date.now();
+			const now = performance.now();
 			const timeDiff = now - lastUpdatedAt;
-			const elapsedFrames = Math.floor(timeDiff / frameDuration);
+			const timeSinceLastLoop = now - lastLoopedAt;
+
+			// Add half the time since the last RAF call, to smooth out / factor for the next update potentially being further from the frame duration than this one
+			const elapsedFrames = Math.floor((timeDiff + timeSinceLastLoop / 2) / frameDuration);
 			renderIteration = (renderIteration + elapsedFrames) % frameCount;
+			lastLoopedAt = now;
+
 			if (elapsedFrames > 0) {
 				lastUpdatedAt = now;
+
+				renderFrame(renderIteration, offscreenOutputCtx, imagePrepCanvas, imageSizing, settings);
 			}
 
 			updateLoopRef = window.requestAnimationFrame(updateLoop);
