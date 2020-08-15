@@ -45,7 +45,6 @@ export function getTransformationMatrices(
 				[1.072, 0, -0.206, 0.789, 0.169 * canvasHeight, 0.211 * verticalAnchor],
 				[1.016, 0, -0.267, 0.827, 0.283 * canvasHeight, 0.173 * verticalAnchor],
 			];
-			break;
 	}
 
 	return [];

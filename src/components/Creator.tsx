@@ -8,17 +8,124 @@ const maxWidth = 128;
 const maxHeight = maxWidth;
 const frameDuration = 50;
 
+interface ImageMeta {
+	loaded: boolean;
+	width: number;
+	height: number;
+}
+
+interface ImageSizing {
+	canvasWidth: number;
+	canvasHeight: number;
+	imageRegionWidth: number;
+	imageRegionHeight: number;
+	padding: { x: number; y: number };
+}
+
+/**
+ * Calculates info needed to size the output canvas, based on the provided image information
+ */
+function getImageSizing(imageMeta: ImageMeta): ImageSizing {
+	const scaleAmount = Math.min(maxWidth / imageMeta.width, maxHeight / imageMeta.height);
+
+	const imageRegionWidth = scaleAmount > 1 ? imageMeta.width : imageMeta.width * scaleAmount;
+	const imageRegionHeight = scaleAmount > 1 ? imageMeta.height : imageMeta.height * scaleAmount;
+	const padding = { x: imageRegionWidth * 0.4, y: imageRegionHeight * 0.1 };
+
+	const canvasWidth = imageRegionWidth + padding.x * 2;
+	const canvasHeight = imageRegionHeight + padding.y * 2;
+
+	return {
+		canvasWidth,
+		canvasHeight,
+		imageRegionWidth,
+		imageRegionHeight,
+		padding,
+	};
+}
+
+function setCanvasSizes(imageSizing: ImageSizing, ...canvases: HTMLCanvasElement[]) {
+	canvases.forEach((canvas) => {
+		canvas.width = imageSizing.canvasWidth;
+		canvas.height = imageSizing.canvasHeight;
+	});
+}
+
+/**
+ * Pre-renders static things that are used by the main render function.
+ * @param imageSizing Sizing info to use to position the image
+ * @param preProcessedImageCtx Canvas context where the pre-processed image will be drawn
+ * @param image Image to draw
+ */
+function prepForRender(
+	imageSizing: ImageSizing,
+	preProcessedImageCtx: CanvasRenderingContext2D,
+	image: HTMLImageElement
+) {
+	preProcessedImageCtx.drawImage(
+		image,
+		imageSizing.padding.x,
+		imageSizing.padding.y,
+		imageSizing.imageRegionWidth,
+		imageSizing.imageRegionHeight
+	);
+
+	// Convert to grayscale
+	const grayscaleImage = preProcessedImageCtx.getImageData(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
+	const pixels = grayscaleImage.data;
+
+	for (let i = 0; i < pixels.length; i += 4) {
+		const brightness = pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
+		pixels[i] = brightness;
+		pixels[i + 1] = brightness;
+		pixels[i + 2] = brightness;
+	}
+
+	preProcessedImageCtx.putImageData(grayscaleImage, 0, 0);
+}
+
+function renderFrame(
+	frameNumber: number,
+	canvasCtx: CanvasRenderingContext2D,
+	imageSource: CanvasImageSource,
+	imageSizing: ImageSizing,
+	settings: SettingsValues
+) {
+	canvasCtx.globalCompositeOperation = 'source-over';
+	canvasCtx.clearRect(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
+
+	canvasCtx.setTransform(
+		...(getTransformationMatrices(
+			settings.waveStyle,
+			imageSizing.canvasHeight,
+			(imageSizing.imageRegionHeight + imageSizing.padding.y) * settings.verticalCenter
+		)[frameNumber] as DOMMatrix2DInit[])
+	);
+	// draw base image
+	canvasCtx.globalCompositeOperation = 'source-over';
+	canvasCtx.drawImage(imageSource, 0, 0);
+	// overlay the colour blend
+	canvasCtx.globalCompositeOperation = 'overlay';
+	canvasCtx.fillStyle = rainbowColours[frameNumber];
+	canvasCtx.fillRect(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
+
+	// mask using the original image
+	canvasCtx.globalCompositeOperation = 'destination-in';
+	canvasCtx.drawImage(imageSource, 0, 0);
+}
+
 export default function Creator(): JSX.Element {
 	const [settings, setSettings] = useState<SettingsValues>({
 		...defaultSettings,
 	});
 
 	const [image] = useState<HTMLImageElement>(new Image());
-	const [scaledImageCanvas] = useState<HTMLCanvasElement>(document.createElement('canvas'));
-	const [offscreenProcessingCanvas] = useState<HTMLCanvasElement>(document.createElement('canvas'));
-	const [imageMeta, setImageMeta] = useState({ loaded: false, width: 0, height: 0 });
+	const [imagePrepCanvas] = useState<HTMLCanvasElement>(document.createElement('canvas'));
+	const [offscreenOutputCanvas] = useState<HTMLCanvasElement>(document.createElement('canvas'));
+	const [imageMeta, setImageMeta] = useState<ImageMeta>({ loaded: false, width: 0, height: 0 });
 	const [lastRenderIteration, setLastRenderIteration] = useState(0);
 	const [lastRenderTime, setLastRenderTime] = useState(0);
+	const [outputImageBlobUrl, setOutputImageBlobUrl] = useState<string | null>(null);
 
 	const onFileSelected = (file: File | undefined) => {
 		image.src = URL.createObjectURL(file);
@@ -30,78 +137,30 @@ export default function Creator(): JSX.Element {
 				height: image.height,
 			});
 		};
+
+		// Clear the existing output, to avoid confusion
+		setOutputImageBlobUrl(null);
 	};
 
 	useEffect(() => {
-		if (!imageMeta.loaded) {
+		const imagePrepCtx = imagePrepCanvas.getContext('2d');
+		const offscreenOutputCtx = offscreenOutputCanvas.getContext('2d');
+
+		if (!imageMeta.loaded || !imagePrepCtx || !offscreenOutputCtx) {
 			return;
 		}
 
-		// Process outline:
-		// - Scale the canvas to match the image aspect-ratio, and be within our maximum dimensions
-		// - Draw the image
-		// - Convert the image to grayscale
-		// - Start the animation loop, which does the hard work
+		const imageSizing = getImageSizing(imageMeta);
 
-		const scaleAmount = Math.min(maxWidth / imageMeta.width, maxHeight / imageMeta.height);
-
-		const imageRegionWidth = scaleAmount > 1 ? imageMeta.width : imageMeta.width * scaleAmount;
-		const imageRegionHeight = scaleAmount > 1 ? imageMeta.height : imageMeta.height * scaleAmount;
-		const padding = { x: imageRegionWidth * 0.4, y: imageRegionHeight * 0.1 };
-		const canvasWidth = imageRegionWidth + padding.x * 2;
-		const canvasHeight = imageRegionHeight + padding.y * 2;
-
-		offscreenProcessingCanvas.width = scaledImageCanvas.width = canvasWidth;
-		offscreenProcessingCanvas.height = scaledImageCanvas.height = canvasHeight;
-
-		const scaledImageCtx = scaledImageCanvas.getContext('2d');
-		const offscreenProcessingCtx = offscreenProcessingCanvas.getContext('2d');
-
-		if (!scaledImageCtx || !offscreenProcessingCtx) {
-			return;
-		}
-
-		scaledImageCtx.drawImage(image, padding.x, padding.y, imageRegionWidth, imageRegionHeight);
-
-		// Convert to grayscale
-		const grayscaleImage = scaledImageCtx.getImageData(0, 0, canvasWidth, canvasHeight);
-		const pixels = grayscaleImage.data;
-
-		for (let i = 0; i < pixels.length; i += 4) {
-			const brightness = pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
-			pixels[i] = brightness;
-			pixels[i + 1] = brightness;
-			pixels[i + 2] = brightness;
-		}
-
-		scaledImageCtx.putImageData(grayscaleImage, 0, 0);
+		setCanvasSizes(imageSizing, imagePrepCanvas, offscreenOutputCanvas);
+		prepForRender(imageSizing, imagePrepCtx, image);
 
 		let updateLoopRef: number | undefined;
 		let renderIteration = lastRenderIteration;
 		let lastUpdatedAt = lastRenderTime || Date.now();
 
 		const updateLoop = () => {
-			offscreenProcessingCtx.globalCompositeOperation = 'source-over';
-			offscreenProcessingCtx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-			offscreenProcessingCtx.setTransform(
-				...(getTransformationMatrices(
-					settings.waveStyle,
-					canvasHeight,
-					(imageRegionHeight + padding.y) * settings.verticalCenter
-				)[renderIteration] as DOMMatrix2DInit[])
-			);
-			// draw base image
-			offscreenProcessingCtx.globalCompositeOperation = 'source-over';
-			offscreenProcessingCtx.drawImage(scaledImageCanvas, 0, 0);
-			// overlay the colour blend
-			offscreenProcessingCtx.globalCompositeOperation = 'overlay';
-			offscreenProcessingCtx.fillStyle = rainbowColours[renderIteration];
-			offscreenProcessingCtx.fillRect(0, 0, canvasWidth, canvasHeight);
-
-			// mask using the original image
-			offscreenProcessingCtx.globalCompositeOperation = 'destination-in';
-			offscreenProcessingCtx.drawImage(image, padding.x, padding.y, imageRegionWidth, imageRegionHeight);
+			renderFrame(renderIteration, offscreenOutputCtx, imagePrepCanvas, imageSizing, settings);
 
 			const now = Date.now();
 			const timeDiff = now - lastUpdatedAt;
@@ -129,8 +188,47 @@ export default function Creator(): JSX.Element {
 	}, [imageMeta, settings]);
 
 	// For debugging
-	document.body.appendChild(scaledImageCanvas);
-	document.body.appendChild(offscreenProcessingCanvas);
+	document.body.appendChild(imagePrepCanvas);
+	document.body.appendChild(offscreenOutputCanvas);
+
+	const generateGif = () => {
+		if (!imageMeta.loaded || !window.GIF) {
+			return;
+		}
+
+		const gifImagePrepCanvas = document.createElement('canvas');
+		const gifOutputCanvas = document.createElement('canvas');
+
+		const imagePrepCtx = gifImagePrepCanvas.getContext('2d');
+		const outputProcessingCtx = gifOutputCanvas.getContext('2d');
+
+		if (!imagePrepCtx || !outputProcessingCtx) {
+			return;
+		}
+
+		const imageSizing = getImageSizing(imageMeta);
+		setCanvasSizes(imageSizing, gifImagePrepCanvas, gifOutputCanvas);
+		prepForRender(imageSizing, imagePrepCtx, image);
+
+		const gifRenderer = new window.GIF({
+			workers: 4,
+			workerScript: '/vendor/gif.worker.js',
+			width: imageSizing.canvasWidth,
+			height: imageSizing.canvasHeight,
+			transparent: 0x00000000,
+		});
+
+		gifRenderer.on('finished', (blob: Blob) => {
+			setOutputImageBlobUrl(URL.createObjectURL(blob));
+		});
+
+		for (let frameNumber = 0; frameNumber < frameCount; frameNumber++) {
+			renderFrame(frameNumber, outputProcessingCtx, imagePrepCanvas, imageSizing, settings);
+			gifRenderer.addFrame(outputProcessingCtx, { delay: 50, copy: true });
+		}
+
+		gifRenderer.render();
+	};
 
 	return (
 		<section className='Creator'>
@@ -145,9 +243,16 @@ export default function Creator(): JSX.Element {
 				</div>
 			</div>
 
-			<button type='button' className='Button'>
+			<button type='button' className='Button' onClick={generateGif}>
 				3. Generate GIF
 			</button>
+
+			{outputImageBlobUrl && (
+				<>
+					<p>Right click / long-press on the image, choose save, and get the party started!</p>
+					<img alt='' src={outputImageBlobUrl} />
+				</>
+			)}
 		</section>
 	);
 }
