@@ -27,15 +27,18 @@ export type PreviewRenderListener = (canvas: HTMLCanvasElement, imageSizing: Ima
 /**
  * Calculates info needed to size the output canvas, based on the provided image information
  */
-function getImageSizing(imageMeta: ImageMeta): ImageSizing {
+function getImageSizing(imageMeta: ImageMeta, settings: SettingsValues): ImageSizing {
 	const scaleAmount = Math.min(maxWidth / imageMeta.width, maxHeight / imageMeta.height);
 
 	const imageRegionWidth = scaleAmount > 1 ? imageMeta.width : imageMeta.width * scaleAmount;
 	const imageRegionHeight = scaleAmount > 1 ? imageMeta.height : imageMeta.height * scaleAmount;
-	const padding = { x: imageRegionWidth * 0.4, y: imageRegionHeight * 0.1 };
+
+	const totalPaddingY = imageRegionHeight * 0; // TODO: this may not be needed at all, if it's not made configurable
+
+	const padding = { x: imageRegionWidth * 0.4, y: settings.verticalCenter * totalPaddingY };
 
 	const canvasWidth = imageRegionWidth + padding.x * 2;
-	const canvasHeight = imageRegionHeight + padding.y * 2;
+	const canvasHeight = imageRegionHeight + totalPaddingY;
 
 	return {
 		canvasWidth,
@@ -177,7 +180,7 @@ export default function Creator(): JSX.Element {
 			return;
 		}
 
-		const imageSizing = getImageSizing(imageMeta);
+		const imageSizing = getImageSizing(imageMeta, settings);
 
 		setCanvasSizes(imageSizing, imagePrepCanvas, offscreenOutputCanvas, previewCanvas);
 		prepForRender(imageSizing, imagePrepCtx, image);
@@ -246,7 +249,7 @@ export default function Creator(): JSX.Element {
 			return;
 		}
 
-		const imageSizing = getImageSizing(imageMeta);
+		const imageSizing = getImageSizing(imageMeta, settings);
 		setCanvasSizes(imageSizing, gifImagePrepCanvas, gifOutputCanvas);
 		prepForRender(imageSizing, imagePrepCtx, image);
 
