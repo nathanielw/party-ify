@@ -1,0 +1,9 @@
+.FileSelector__Input {
+	width: 0;
+	height: 0;
+	overflow: hidden;
+}
+
+.FileSelector__Input:focus + .FileSelector__Button {
+	// TODO
+}

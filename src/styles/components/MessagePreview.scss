@@ -1,0 +1,30 @@
+@use '../core/colours';
+
+.MessagePreview {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 12px;
+	font-family: 'Lato', sans-serif;
+	font-size: 0.83rem;
+	background: #ffffff;
+	border-radius: 6px;
+}
+
+.MessagePreview__Avatar {
+	display: block;
+	width: 36px;
+	height: 36px;
+	background: radial-gradient(50% 50% at 50% 50%, #FFFFFF 0% 55%, colours.$kakapoGreen 55% 100%);
+	border-radius: 2px;
+}
+
+.MessagePreview__Text {
+	margin-left: 12px;
+}
+
+.MessagePreview__Emoji {
+	width: 27px;
+	height: 27px;
+	margin-left: 6px;
+}

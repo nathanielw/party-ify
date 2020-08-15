@@ -1,0 +1,28 @@
+@use '../core/media';
+@use '../core/spacing';
+
+.SettingsContainer {
+	display: flex;
+	flex-direction: column;
+	margin-top: spacing.$v * 5;
+	margin-bottom: spacing.$v * 5;
+
+	@media #{media.$md} {
+		flex-direction: row;
+	}
+}
+
+.SettingsContainer__Section {
+	flex-basis: 0;
+	flex-grow: 1;
+	margin-left: spacing.$h;
+	margin-right: spacing.$h;
+
+	&:first-child {
+		margin-left: 0;
+	}
+
+	&:last-child {
+		margin-right: 0;
+	}
+}

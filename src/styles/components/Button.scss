@@ -3,9 +3,13 @@
 @use '../core/type';
 
 .Button {
-	padding: 12px 48px;
+	padding: 22px 48px 18px;
+	margin-bottom: 8px;
+	width: 100%;
+	line-height: 1;
 	font-family: type.$familyHeadings;
 	text-transform: lowercase;
+	text-align: center;
 	font-size: 1.5rem;
 	background: colours.$kakapoGreen;
 	color: #ffffff;
@@ -13,4 +17,5 @@
 	border-radius: 2em;
 	box-shadow: 8px 8px 0 colours.$kakapoGreen--dark;
 	cursor: pointer;
+	display: inline-block;
 }

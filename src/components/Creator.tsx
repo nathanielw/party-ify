@@ -1,14 +1,24 @@
 import React from 'react';
+import FileSelector from './FileSelector';
+import MessagePreview from './MessagePreview';
+import Settings from './Settings';
 
 export default function Creator(): JSX.Element {
+	const onFileSelected = (imageFile: File | undefined) => {
+		console.log(imageFile);
+	};
+
 	return (
 		<section className='Creator'>
-			<button type='button' className='Button'>
-				1. Choose an image...
-			</button>
+			<FileSelector onFileSelected={onFileSelected} />
 
-			<div>
-				<p>2. Settings</p>
+			<div className='SettingsContainer'>
+				<Settings />
+				<div className='SettingsContainer__Section'>
+					<canvas />
+
+					<MessagePreview />
+				</div>
 			</div>
 
 			<button type='button' className='Button'>

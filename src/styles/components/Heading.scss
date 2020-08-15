@@ -1,0 +1,12 @@
+@use '../core/type';
+@use '../core/colours';
+
+.Heading {
+	font-family: type.$familyHeadings;
+}
+
+.Heading--2 {
+	margin-bottom: 1em;
+	font-size: 1.5rem;
+	color: colours.$kakapoGreen;
+}

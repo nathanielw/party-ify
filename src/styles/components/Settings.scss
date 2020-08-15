@@ -1,0 +1,15 @@
+@use '../core/type';
+@use '../core/spacing';
+
+.Settings__Label {
+	display: inline-block;
+	font-weight: 700;
+	margin-bottom: spacing.$v;
+}
+
+.Settings__Input {
+	font-size: 1rem;
+	font-family: type.$familyBody;
+	width: 100%;
+	margin-bottom: 2 * spacing.$v;
+}
