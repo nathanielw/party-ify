@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import FileSelector from './FileSelector';
 import MessagePreview from './MessagePreview';
 import Settings, { SettingsValues, defaultSettings } from './Settings';
@@ -14,13 +14,15 @@ interface ImageMeta {
 	height: number;
 }
 
-interface ImageSizing {
+export interface ImageSizing {
 	canvasWidth: number;
 	canvasHeight: number;
 	imageRegionWidth: number;
 	imageRegionHeight: number;
 	padding: { x: number; y: number };
 }
+
+export type PreviewRenderListener = (canvas: HTMLCanvasElement, imageSizing: ImageSizing) => void;
 
 /**
  * Calculates info needed to size the output canvas, based on the provided image information
@@ -126,6 +128,9 @@ export default function Creator(): JSX.Element {
 	const [lastRenderIteration, setLastRenderIteration] = useState(0);
 	const [lastRenderTime, setLastRenderTime] = useState(0);
 	const [outputImageBlobUrl, setOutputImageBlobUrl] = useState<string | null>(null);
+	const [previewRenderListeners, setPreviewRenderListeners] = useState<PreviewRenderListener[]>([]);
+
+	const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
 	const onFileSelected = (file: File | undefined) => {
 		image.src = URL.createObjectURL(file);
@@ -142,17 +147,39 @@ export default function Creator(): JSX.Element {
 		setOutputImageBlobUrl(null);
 	};
 
+	// Bit of a hackish way to notify the message preview when there's a new frame to render.
+	// The more React-y way would be to pass the image data in, but that feels potentially expensive
+	// and weirdly overlaps the rendering concerns
+	const addPreviewRenderListener = useMemo(() => {
+		return (listener: PreviewRenderListener) => {
+			setPreviewRenderListeners((state) => {
+				return [...state, listener];
+			});
+		};
+	}, []);
+
+	const removePreviewRenderListener = useMemo(() => {
+		return (listener: PreviewRenderListener) => {
+			setPreviewRenderListeners((state) => {
+				return state.filter((l) => l != listener);
+			});
+		};
+	}, []);
+
 	useEffect(() => {
 		const imagePrepCtx = imagePrepCanvas.getContext('2d');
 		const offscreenOutputCtx = offscreenOutputCanvas.getContext('2d');
 
-		if (!imageMeta.loaded || !imagePrepCtx || !offscreenOutputCtx) {
+		const previewCanvas = previewCanvasRef.current;
+		const previewCanvasCtx = previewCanvas?.getContext('2d');
+
+		if (!imageMeta.loaded || !imagePrepCtx || !offscreenOutputCtx || !previewCanvas || !previewCanvasCtx) {
 			return;
 		}
 
 		const imageSizing = getImageSizing(imageMeta);
 
-		setCanvasSizes(imageSizing, imagePrepCanvas, offscreenOutputCanvas);
+		setCanvasSizes(imageSizing, imagePrepCanvas, offscreenOutputCanvas, previewCanvas);
 		prepForRender(imageSizing, imagePrepCtx, image);
 
 		let updateLoopRef: number | undefined;
@@ -174,6 +201,13 @@ export default function Creator(): JSX.Element {
 				lastUpdatedAt = now;
 
 				renderFrame(renderIteration, offscreenOutputCtx, imagePrepCanvas, imageSizing, settings);
+
+				previewCanvasCtx.clearRect(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
+				previewCanvasCtx.drawImage(offscreenOutputCanvas, 0, 0);
+
+				previewRenderListeners.forEach((listener) => {
+					listener(offscreenOutputCanvas, imageSizing);
+				});
 			}
 
 			updateLoopRef = window.requestAnimationFrame(updateLoop);
@@ -243,9 +277,9 @@ export default function Creator(): JSX.Element {
 			<div className='SettingsContainer'>
 				<Settings onSettingsChanged={setSettings} />
 				<div className='SettingsContainer__Section'>
-					<canvas />
+					<canvas ref={previewCanvasRef} />
 
-					<MessagePreview />
+					<MessagePreview onReady={addPreviewRenderListener} onDestroy={removePreviewRenderListener} />
 				</div>
 			</div>
 
