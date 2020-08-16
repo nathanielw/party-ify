@@ -20,6 +20,12 @@ export interface ImageSizing {
 	imageRegionWidth: number;
 	imageRegionHeight: number;
 	padding: { x: number; y: number };
+	crop: {
+		top: number;
+		left: number;
+		right: number;
+		bottom: number;
+	};
 }
 
 export type PreviewRenderListener = (canvas: HTMLCanvasElement, imageSizing: ImageSizing) => void;
@@ -27,15 +33,69 @@ export type PreviewRenderListener = (canvas: HTMLCanvasElement, imageSizing: Ima
 /**
  * Calculates info needed to size the output canvas, based on the provided image information
  */
-function getImageSizing(imageMeta: ImageMeta, settings: SettingsValues): ImageSizing {
-	const scaleAmount = Math.min(maxWidth / imageMeta.width, maxHeight / imageMeta.height);
+function getImageSizing(imageMeta: ImageMeta, settings: SettingsValues, image: HTMLImageElement): ImageSizing | null {
+	const cropperCanvas = document.createElement('canvas');
+	cropperCanvas.width = imageMeta.width;
+	cropperCanvas.height = imageMeta.height;
 
-	const imageRegionWidth = scaleAmount > 1 ? imageMeta.width : imageMeta.width * scaleAmount;
-	const imageRegionHeight = scaleAmount > 1 ? imageMeta.height : imageMeta.height * scaleAmount;
+	const cropperCtx = cropperCanvas.getContext('2d');
+
+	if (!cropperCtx) {
+		return null;
+	}
+
+	cropperCtx.drawImage(image, 0, 0);
+	const pixels = cropperCtx.getImageData(0, 0, imageMeta.width, imageMeta.height);
+	const pixelDataLength = pixels.data.length;
+
+	const bounds = {
+		top: imageMeta.height / 2,
+		left: imageMeta.width / 2,
+		right: imageMeta.width / 2,
+		bottom: imageMeta.height / 2,
+	};
+
+	let x,
+		y = 0;
+
+	// Based on https://gist.github.com/remy/784508
+	for (let i = 0; i < pixelDataLength; i += 4) {
+		if (pixels.data[i + 3] !== 0) {
+			x = (i / 4) % imageMeta.height;
+			y = ~~(i / 4 / imageMeta.height);
+
+			if (y < bounds.top) {
+				bounds.top = y;
+			}
+
+			if (x < bounds.left) {
+				bounds.left = x;
+			}
+
+			if (x > bounds.right) {
+				bounds.right = x;
+			}
+
+			if (y > bounds.bottom) {
+				bounds.bottom = y;
+			}
+		}
+	}
+
+	bounds.bottom += 1;
+	bounds.right += 1;
+
+	const width = bounds.right - bounds.left;
+	const height = bounds.bottom - bounds.top;
+
+	const scaleAmount = Math.min(maxWidth / width, maxHeight / height);
+
+	const imageRegionWidth = scaleAmount > 1 ? width : width * scaleAmount;
+	const imageRegionHeight = scaleAmount > 1 ? height : height * scaleAmount;
 
 	const totalPaddingY = imageRegionHeight * 0; // TODO: this may not be needed at all, if it's not made configurable
 
-	const padding = { x: imageRegionWidth * 0.4, y: settings.verticalCenter * totalPaddingY };
+	const padding = { x: imageRegionWidth * 0, y: settings.verticalCenter * totalPaddingY };
 
 	const canvasWidth = imageRegionWidth + padding.x * 2;
 	const canvasHeight = imageRegionHeight + totalPaddingY;
@@ -46,6 +106,7 @@ function getImageSizing(imageMeta: ImageMeta, settings: SettingsValues): ImageSi
 		imageRegionWidth,
 		imageRegionHeight,
 		padding,
+		crop: bounds,
 	};
 }
 
@@ -69,6 +130,10 @@ function prepForRender(
 ) {
 	preProcessedImageCtx.drawImage(
 		image,
+		imageSizing.crop.left,
+		imageSizing.crop.top,
+		imageSizing.crop.right - imageSizing.crop.left,
+		imageSizing.crop.bottom - imageSizing.crop.top,
 		imageSizing.padding.x,
 		imageSizing.padding.y,
 		imageSizing.imageRegionWidth,
@@ -180,7 +245,11 @@ export default function Creator(): JSX.Element {
 			return;
 		}
 
-		const imageSizing = getImageSizing(imageMeta, settings);
+		const imageSizing = getImageSizing(imageMeta, settings, image);
+
+		if (!imageSizing) {
+			return;
+		}
 
 		setCanvasSizes(imageSizing, imagePrepCanvas, offscreenOutputCanvas, previewCanvas);
 		prepForRender(imageSizing, imagePrepCtx, image);
@@ -249,7 +318,12 @@ export default function Creator(): JSX.Element {
 			return;
 		}
 
-		const imageSizing = getImageSizing(imageMeta, settings);
+		const imageSizing = getImageSizing(imageMeta, settings, image);
+
+		if (!imageSizing) {
+			return;
+		}
+
 		setCanvasSizes(imageSizing, gifImagePrepCanvas, gifOutputCanvas);
 		prepForRender(imageSizing, imagePrepCtx, image);
 
