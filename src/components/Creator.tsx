@@ -4,7 +4,7 @@ import MessagePreview from './MessagePreview';
 import Settings, { SettingsValues, defaultSettings } from './Settings';
 import { frameCount, getTransformationMatrices, rainbowColours } from '../config/animation';
 
-const maxWidth = 128;
+const maxWidth = 100;
 const maxHeight = maxWidth;
 const frameDuration = 50;
 
@@ -14,45 +14,43 @@ interface ImageMeta {
 	height: number;
 }
 
-export interface ImageSizing {
+interface CropBounds {
+	top: number;
+	left: number;
+	right: number;
+	bottom: number;
+}
+
+interface ImageSizing {
 	canvasWidth: number;
 	canvasHeight: number;
 	imageRegionWidth: number;
 	imageRegionHeight: number;
-	padding: { x: number; y: number };
-	crop: {
-		top: number;
-		left: number;
-		right: number;
-		bottom: number;
-	};
 }
 
-export type PreviewRenderListener = (canvas: HTMLCanvasElement, imageSizing: ImageSizing) => void;
+interface CachedFrameData {
+	frames: ImageData[];
+	crop: CropBounds;
+}
+
+export type PreviewRenderListener = (canvas: HTMLCanvasElement, sourceWidth: number, sourceHight: number) => void;
 
 /**
- * Calculates info needed to size the output canvas, based on the provided image information
+ * Gets the bounds of the non-transparent image data.
+ * Represented as distance from the top-left corner of the provided canvas.
  */
-function getImageSizing(imageMeta: ImageMeta, settings: SettingsValues, image: HTMLImageElement): ImageSizing | null {
-	const cropperCanvas = document.createElement('canvas');
-	cropperCanvas.width = imageMeta.width;
-	cropperCanvas.height = imageMeta.height;
+function getPixelBoundsForCanvas(ctx: CanvasRenderingContext2D): CropBounds {
+	const width = ctx.canvas.width;
+	const height = ctx.canvas.height;
 
-	const cropperCtx = cropperCanvas.getContext('2d');
-
-	if (!cropperCtx) {
-		return null;
-	}
-
-	cropperCtx.drawImage(image, 0, 0);
-	const pixels = cropperCtx.getImageData(0, 0, imageMeta.width, imageMeta.height);
+	const pixels = ctx.getImageData(0, 0, width, height);
 	const pixelDataLength = pixels.data.length;
 
 	const bounds = {
-		top: imageMeta.height / 2,
-		left: imageMeta.width / 2,
-		right: imageMeta.width / 2,
-		bottom: imageMeta.height / 2,
+		top: height / 2,
+		left: width / 2,
+		right: width / 2,
+		bottom: height / 2,
 	};
 
 	let x,
@@ -61,8 +59,8 @@ function getImageSizing(imageMeta: ImageMeta, settings: SettingsValues, image: H
 	// Based on https://gist.github.com/remy/784508
 	for (let i = 0; i < pixelDataLength; i += 4) {
 		if (pixels.data[i + 3] !== 0) {
-			x = (i / 4) % imageMeta.height;
-			y = ~~(i / 4 / imageMeta.height);
+			x = (i / 4) % width;
+			y = ~~(i / 4 / width);
 
 			if (y < bounds.top) {
 				bounds.top = y;
@@ -85,36 +83,49 @@ function getImageSizing(imageMeta: ImageMeta, settings: SettingsValues, image: H
 	bounds.bottom += 1;
 	bounds.right += 1;
 
-	const width = bounds.right - bounds.left;
-	const height = bounds.bottom - bounds.top;
-
-	const scaleAmount = Math.min(maxWidth / width, maxHeight / height);
-
-	const imageRegionWidth = scaleAmount > 1 ? width : width * scaleAmount;
-	const imageRegionHeight = scaleAmount > 1 ? height : height * scaleAmount;
-
-	const totalPaddingY = imageRegionHeight * 0; // TODO: this may not be needed at all, if it's not made configurable
-
-	const padding = { x: imageRegionWidth * 0, y: settings.verticalCenter * totalPaddingY };
-
-	const canvasWidth = imageRegionWidth + padding.x * 2;
-	const canvasHeight = imageRegionHeight + totalPaddingY;
-
-	return {
-		canvasWidth,
-		canvasHeight,
-		imageRegionWidth,
-		imageRegionHeight,
-		padding,
-		crop: bounds,
-	};
+	return bounds;
 }
 
-function setCanvasSizes(imageSizing: ImageSizing, ...canvases: HTMLCanvasElement[]) {
-	canvases.forEach((canvas) => {
-		canvas.width = imageSizing.canvasWidth;
-		canvas.height = imageSizing.canvasHeight;
-	});
+function getPixelBounds(image: CanvasImageSource): CropBounds {
+	const cropperCanvas = document.createElement('canvas');
+	cropperCanvas.width = image.width as number;
+	cropperCanvas.height = image.height as number;
+
+	const cropperCtx = cropperCanvas.getContext('2d');
+
+	if (!cropperCtx) {
+		return {
+			top: 0,
+			left: 0,
+			right: image.width as number,
+			bottom: image.height as number,
+		};
+	}
+
+	cropperCtx.drawImage(image, 0, 0);
+	const bounds = getPixelBoundsForCanvas(cropperCtx);
+
+	return bounds;
+}
+
+/**
+ * Calculates info needed to size the output canvas, based on the provided image information
+ */
+function getImageSizing(imageMeta: ImageMeta): ImageSizing {
+	const width = imageMeta.width;
+	const height = imageMeta.height;
+
+	const scaleAmount = Math.min(1, maxWidth / width, maxHeight / height);
+
+	const imageRegionWidth = width * scaleAmount;
+	const imageRegionHeight = height * scaleAmount;
+
+	return {
+		canvasWidth: maxWidth * 2, // These are hardcoded for the sake of keeping the transformation matrices simple and static
+		canvasHeight: maxHeight * 2,
+		imageRegionWidth,
+		imageRegionHeight,
+	};
 }
 
 /**
@@ -130,12 +141,12 @@ function prepForRender(
 ) {
 	preProcessedImageCtx.drawImage(
 		image,
-		imageSizing.crop.left,
-		imageSizing.crop.top,
-		imageSizing.crop.right - imageSizing.crop.left,
-		imageSizing.crop.bottom - imageSizing.crop.top,
-		imageSizing.padding.x,
-		imageSizing.padding.y,
+		0,
+		0,
+		image.width,
+		image.height,
+		(imageSizing.canvasWidth - imageSizing.imageRegionWidth) / 2,
+		(imageSizing.canvasHeight - imageSizing.imageRegionHeight) / 2,
 		imageSizing.imageRegionWidth,
 		imageSizing.imageRegionHeight
 	);
@@ -154,6 +165,48 @@ function prepForRender(
 	preProcessedImageCtx.putImageData(grayscaleImage, 0, 0);
 }
 
+/**
+ * Renders all frames of the animation and returns them as ImageData, along with info on how the final frames should be cropped
+ */
+function generateCachedFrames(
+	settings: SettingsValues,
+	imageSizing: ImageSizing,
+	image: CanvasImageSource
+): CachedFrameData | null {
+	const canvas = document.createElement('canvas');
+	const ctx = canvas.getContext('2d');
+
+	if (!ctx) {
+		return null;
+	}
+
+	const cachedFrames = [];
+
+	canvas.width = imageSizing.canvasWidth;
+	canvas.height = imageSizing.canvasHeight;
+
+	const maximalBounds = {
+		top: canvas.height,
+		left: canvas.width,
+		right: 0,
+		bottom: 0,
+	};
+
+	for (let i = 0; i < frameCount; i++) {
+		renderFrame(i, ctx, image, imageSizing, settings);
+		cachedFrames.push(ctx.getImageData(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight));
+
+		const computedBounds = getPixelBounds(canvas);
+
+		maximalBounds.top = Math.min(computedBounds.top, maximalBounds.top);
+		maximalBounds.left = Math.min(computedBounds.left, maximalBounds.left);
+		maximalBounds.right = Math.max(computedBounds.right, maximalBounds.right);
+		maximalBounds.bottom = Math.max(computedBounds.bottom, maximalBounds.bottom);
+	}
+
+	return { frames: cachedFrames, crop: maximalBounds };
+}
+
 function renderFrame(
 	frameNumber: number,
 	canvasCtx: CanvasRenderingContext2D,
@@ -165,11 +218,7 @@ function renderFrame(
 	canvasCtx.clearRect(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
 
 	canvasCtx.setTransform(
-		...(getTransformationMatrices(
-			settings.waveStyle,
-			imageSizing.canvasHeight,
-			(imageSizing.imageRegionHeight + imageSizing.padding.y) * settings.verticalCenter
-		)[frameNumber] as DOMMatrix2DInit[])
+		...(getTransformationMatrices(settings.waveStyle, settings.verticalCenter)[frameNumber] as DOMMatrix2DInit[])
 	);
 	// draw base image
 	canvasCtx.globalCompositeOperation = 'source-over';
@@ -184,6 +233,10 @@ function renderFrame(
 	canvasCtx.drawImage(imageSource, 0, 0);
 }
 
+function renderCachedFrame(canvasCtx: CanvasRenderingContext2D, cachedFrame: ImageData, crop: CropBounds) {
+	canvasCtx.putImageData(cachedFrame, -crop.left, -crop.top);
+}
+
 export default function Creator(): JSX.Element {
 	const [settings, setSettings] = useState<SettingsValues>({
 		...defaultSettings,
@@ -191,12 +244,12 @@ export default function Creator(): JSX.Element {
 
 	const [image] = useState<HTMLImageElement>(new Image());
 	const [imagePrepCanvas] = useState<HTMLCanvasElement>(document.createElement('canvas'));
-	const [offscreenOutputCanvas] = useState<HTMLCanvasElement>(document.createElement('canvas'));
 	const [imageMeta, setImageMeta] = useState<ImageMeta>({ loaded: false, width: 0, height: 0 });
 	const [lastRenderIteration, setLastRenderIteration] = useState(0);
 	const [lastRenderTime, setLastRenderTime] = useState(0);
 	const [outputImageBlobUrl, setOutputImageBlobUrl] = useState<string | null>(null);
 	const [previewRenderListeners, setPreviewRenderListeners] = useState<PreviewRenderListener[]>([]);
+	const [cachedFrameData, setCachedFrameData] = useState<CachedFrameData | null>();
 
 	const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -215,9 +268,8 @@ export default function Creator(): JSX.Element {
 		setOutputImageBlobUrl(null);
 	};
 
-	// Bit of a hackish way to notify the message preview when there's a new frame to render.
-	// The more React-y way would be to pass the image data in, but that feels potentially expensive
-	// and weirdly overlaps the rendering concerns
+	// TODO: Bit of a hackish way to notify the message preview when there's a new frame to render, leftover from an earlier approach
+	// The more React-y way would be to pass the cached image data in
 	const addPreviewRenderListener = useMemo(() => {
 		return (listener: PreviewRenderListener) => {
 			setPreviewRenderListeners((state) => {
@@ -229,30 +281,39 @@ export default function Creator(): JSX.Element {
 	const removePreviewRenderListener = useMemo(() => {
 		return (listener: PreviewRenderListener) => {
 			setPreviewRenderListeners((state) => {
-				return state.filter((l) => l != listener);
+				return state.filter((l) => l !== listener);
 			});
 		};
 	}, []);
 
 	useEffect(() => {
 		const imagePrepCtx = imagePrepCanvas.getContext('2d');
-		const offscreenOutputCtx = offscreenOutputCanvas.getContext('2d');
 
 		const previewCanvas = previewCanvasRef.current;
 		const previewCanvasCtx = previewCanvas?.getContext('2d');
 
-		if (!imageMeta.loaded || !imagePrepCtx || !offscreenOutputCtx || !previewCanvas || !previewCanvasCtx) {
+		if (!imageMeta.loaded || !imagePrepCtx || !previewCanvas || !previewCanvasCtx) {
 			return;
 		}
 
-		const imageSizing = getImageSizing(imageMeta, settings, image);
+		const imageSizing = getImageSizing(imageMeta);
 
-		if (!imageSizing) {
-			return;
-		}
+		const canvasWidth = imageSizing.canvasWidth;
+		const canvasHeight = imageSizing.canvasHeight;
 
-		setCanvasSizes(imageSizing, imagePrepCanvas, offscreenOutputCanvas, previewCanvas);
+		imagePrepCanvas.width = canvasWidth;
+		imagePrepCanvas.height = canvasHeight;
+
 		prepForRender(imageSizing, imagePrepCtx, image);
+		const cachedData = generateCachedFrames(settings, imageSizing, imagePrepCanvas);
+		setCachedFrameData(cachedData);
+
+		if (!cachedData) {
+			return;
+		}
+
+		const previewWidth = (previewCanvas.width = cachedData.crop.right - cachedData.crop.left);
+		const previewHeight = (previewCanvas.height = cachedData.crop.bottom - cachedData.crop.top);
 
 		let updateLoopRef: number | undefined;
 		let renderIteration = lastRenderIteration;
@@ -271,14 +332,10 @@ export default function Creator(): JSX.Element {
 
 			if (elapsedFrames > 0) {
 				lastUpdatedAt = now;
-
-				renderFrame(renderIteration, offscreenOutputCtx, imagePrepCanvas, imageSizing, settings);
-
-				previewCanvasCtx.clearRect(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
-				previewCanvasCtx.drawImage(offscreenOutputCanvas, 0, 0);
+				renderCachedFrame(previewCanvasCtx, cachedData.frames[renderIteration], cachedData.crop);
 
 				previewRenderListeners.forEach((listener) => {
-					listener(offscreenOutputCanvas, imageSizing);
+					listener(previewCanvas, previewWidth, previewHeight);
 				});
 			}
 
@@ -299,39 +356,26 @@ export default function Creator(): JSX.Element {
 		};
 	}, [imageMeta, settings]);
 
-	// For debugging
-	document.body.appendChild(imagePrepCanvas);
-	document.body.appendChild(offscreenOutputCanvas);
-
 	const generateGif = () => {
-		if (!imageMeta.loaded || !window.GIF) {
+		if (!cachedFrameData || !window.GIF) {
 			return;
 		}
 
-		const gifImagePrepCanvas = document.createElement('canvas');
 		const gifOutputCanvas = document.createElement('canvas');
 
-		const imagePrepCtx = gifImagePrepCanvas.getContext('2d');
+		const width = (gifOutputCanvas.width = cachedFrameData.crop.right - cachedFrameData.crop.left);
+		const height = (gifOutputCanvas.height = cachedFrameData.crop.bottom - cachedFrameData.crop.top);
+
 		const outputProcessingCtx = gifOutputCanvas.getContext('2d');
-
-		if (!imagePrepCtx || !outputProcessingCtx) {
+		if (!outputProcessingCtx) {
 			return;
 		}
-
-		const imageSizing = getImageSizing(imageMeta, settings, image);
-
-		if (!imageSizing) {
-			return;
-		}
-
-		setCanvasSizes(imageSizing, gifImagePrepCanvas, gifOutputCanvas);
-		prepForRender(imageSizing, imagePrepCtx, image);
 
 		const gifRenderer = new window.GIF({
 			workers: 4,
 			workerScript: '/vendor/gif.worker.js',
-			width: imageSizing.canvasWidth,
-			height: imageSizing.canvasHeight,
+			width,
+			height,
 			transparent: 0x00000000,
 		});
 
@@ -340,7 +384,7 @@ export default function Creator(): JSX.Element {
 		});
 
 		for (let frameNumber = 0; frameNumber < frameCount; frameNumber++) {
-			renderFrame(frameNumber, outputProcessingCtx, imagePrepCanvas, imageSizing, settings);
+			renderCachedFrame(outputProcessingCtx, cachedFrameData.frames[frameNumber], cachedFrameData.crop);
 			gifRenderer.addFrame(outputProcessingCtx, { delay: 50, copy: true });
 		}
 

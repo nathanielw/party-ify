@@ -10,7 +10,7 @@ export interface SettingsValues {
 export const defaultSettings: SettingsValues = {
 	waveStyle: 'classic',
 	blendMode: 'overlay',
-	verticalCenter: 0.5,
+	verticalCenter: 1,
 };
 
 export default function Settings(props: { onSettingsChanged: (values: SettingsValues) => void }): JSX.Element {
@@ -37,6 +37,7 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 			<label className='Settings__Label' htmlFor='wave-select'>
 				Wavey style:
 			</label>
+			{/* eslint-disable-next-line jsx-a11y/no-onchange */}
 			<select className='Settings__Input' id='wave-select' ref={waveInputRef} onChange={onInputChange}>
 				{Object.keys(waveStyles).map((key) => (
 					<option key={key} value={key}>
@@ -48,12 +49,13 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 			<label className='Settings__Label' htmlFor='center-slider'>
 				Vertical center:
 			</label>
+			{/* TODO: sort out the scale transform so the min/max of this can be more logical numbers */}
 			<input
 				className='Settings__Input'
 				id='center-slider'
 				type='range'
-				min='0'
-				max='1'
+				min='-0.65'
+				max='2'
 				step='0.05'
 				ref={centerInputRef}
 				defaultValue={defaultSettings.verticalCenter}
@@ -63,6 +65,7 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 			<label className='Settings__Label' htmlFor='blend-select'>
 				Rainbow blend mode:
 			</label>
+			{/* eslint-disable-next-line jsx-a11y/no-onchange */}
 			<select className='Settings__Input' id='blend-select' ref={blendInputRef} onChange={onInputChange}>
 				{Object.keys(blendModes).map((key) => (
 					<option key={key} value={key}>
