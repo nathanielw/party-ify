@@ -5,17 +5,20 @@ export interface SettingsValues {
 	waveStyle: keyof typeof waveStyles;
 	blendMode: keyof typeof blendModes;
 	verticalCenter: number;
+	magnitude: number;
 }
 
 export const defaultSettings: SettingsValues = {
 	waveStyle: 'classic',
 	blendMode: 'overlay',
 	verticalCenter: 1,
+	magnitude: 1,
 };
 
 export default function Settings(props: { onSettingsChanged: (values: SettingsValues) => void }): JSX.Element {
 	const waveInputRef = useRef<HTMLSelectElement>(null);
 	const centerInputRef = useRef<HTMLInputElement>(null);
+	const magnitudeInputRef = useRef<HTMLInputElement>(null);
 	const blendInputRef = useRef<HTMLSelectElement>(null);
 
 	const onInputChange = () => {
@@ -25,6 +28,10 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 			verticalCenter:
 				centerInputRef.current?.value != null
 					? Number.parseFloat(centerInputRef.current?.value)
+					: defaultSettings.verticalCenter,
+			magnitude:
+				magnitudeInputRef.current?.value != null
+					? Number.parseFloat(magnitudeInputRef.current?.value)
 					: defaultSettings.verticalCenter,
 		};
 
@@ -45,6 +52,21 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 					</option>
 				))}
 			</select>
+
+			<label className='Settings__Label' htmlFor='magnitude-slider'>
+				Party magnitude:
+			</label>
+			<input
+				className='Settings__Input'
+				id='magnitude-slider'
+				type='range'
+				min='0'
+				max='1.5'
+				step='0.05'
+				ref={magnitudeInputRef}
+				defaultValue={defaultSettings.magnitude}
+				onChange={onInputChange}
+			/>
 
 			<label className='Settings__Label' htmlFor='center-slider'>
 				Vertical center:

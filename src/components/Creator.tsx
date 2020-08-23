@@ -192,7 +192,11 @@ function generateCachedFrames(
 		bottom: 0,
 	};
 
-	const transformationMatrices = getTransformationMatrices(settings.waveStyle, settings.verticalCenter);
+	const transformationMatrices = getTransformationMatrices(
+		settings.waveStyle,
+		settings.verticalCenter,
+		settings.magnitude
+	);
 
 	for (let i = 0; i < frameCount; i++) {
 		renderFrame(i, ctx, image, imageSizing, settings, transformationMatrices);

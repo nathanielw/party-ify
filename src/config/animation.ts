@@ -31,34 +31,99 @@ export const frameCount = rainbowColours.length;
 export function getTransformationMatrices(
 	waveStyle: keyof typeof waveStyles,
 	// imageSizing: ImageSizing,
-	verticalAnchor: number
+	verticalAnchor: number,
+	magnitude: number
 ): number[][] {
 	switch (waveStyle) {
+		// The 1 - (1 - x) format is a bit weird, but makes it tweak the base value (x), rather than having to mentally do subtraction
 		case 'centered':
 			return [
 				[1, 0, 0, 1, 0, 0],
-				[1, 0, 0.223, 0.944, -33.375, 8.43 * verticalAnchor],
-				[1, 0, 0.326, 0.84, -48.94, 23.813 * verticalAnchor],
-				[1, 0, 0.315, 0.75, -47.25, 37.3 * verticalAnchor],
-				[1, 0, 0.236, 0.685, -35.44, 47.25 * verticalAnchor],
-				[1, 0, 0, 0.66, 0, 50 * verticalAnchor],
-				[1, 0, -0.236, 0.685, 35.44, 47.25 * verticalAnchor],
-				[1, 0, -0.315, 0.75, 47.25, 37.3 * verticalAnchor],
-				[1, 0, -0.326, 0.84, 48.94, 23.813 * verticalAnchor],
-				[1, 0, -0.223, 0.944, 33.375, 8.43 * verticalAnchor],
+				[1, 0, 0.223 * magnitude, 1 - (1 - 0.944) * magnitude, -33.375 * magnitude, 8.43 * verticalAnchor * magnitude],
+				[1, 0, 0.326 * magnitude, 1 - (1 - 0.84) * magnitude, -48.94 * magnitude, 23.813 * verticalAnchor * magnitude],
+				[1, 0, 0.315 * magnitude, 1 - (1 - 0.75) * magnitude, -47.25 * magnitude, 37.3 * verticalAnchor * magnitude],
+				[1, 0, 0.236 * magnitude, 1 - (1 - 0.685) * magnitude, -35.44 * magnitude, 47.25 * verticalAnchor * magnitude],
+				[1, 0, 0, 1 - (1 - 0.66) * magnitude, 0, 50 * verticalAnchor * magnitude],
+				[1, 0, -0.236 * magnitude, 1 - (1 - 0.685) * magnitude, 35.44 * magnitude, 47.25 * verticalAnchor * magnitude],
+				[1, 0, -0.315 * magnitude, 1 - (1 - 0.75) * magnitude, 47.25 * magnitude, 37.3 * verticalAnchor * magnitude],
+				[1, 0, -0.326 * magnitude, 1 - (1 - 0.84) * magnitude, 48.94 * magnitude, 23.813 * verticalAnchor * magnitude],
+				[1, 0, -0.223 * magnitude, 1 - (1 - 0.944) * magnitude, 33.375 * magnitude, 8.43 * verticalAnchor * magnitude],
 			];
 		case 'classic':
 			return [
 				[1, 0, 0, 1, 0, 0],
-				[0.99375, 0, 0.16679, 0.95027, -30.3727, 7.245 * verticalAnchor],
-				[1.04125, 0, 0.2315, 0.8621, -50.84534, 20.088 * verticalAnchor],
-				[1.0, 0, 0.28054, 0.82325, -51.28815, 25.97 * verticalAnchor],
-				[0.94375, 0, 0.11371, 0.80963, -27.00883, 27.8 * verticalAnchor],
-				[0.91125, 0, 0.04853, 0.766, 9.24426, 34.19 * verticalAnchor],
-				[0.9825, 0, -0.17287, 0.70702, 25.55122, 42.85 * verticalAnchor],
-				[1.02125, 0, -0.2405, 0.77915, 34.20272, 32.26 * verticalAnchor],
-				[1.02375, 0, -0.28875, 0.8225, 46.15469, 26.16 * verticalAnchor],
-				[0.9975, 0, -0.1975, 0.91375, 30.20937, 12.71 * verticalAnchor],
+				[
+					1 - (1 - 0.99375) * magnitude,
+					0,
+					0.16679 * magnitude,
+					1 - (1 - 0.95027) * magnitude,
+					-30.3727 * magnitude,
+					7.245 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 1.04125) * magnitude,
+					0,
+					0.2315 * magnitude,
+					1 - (1 - 0.8621) * magnitude,
+					-50.84534 * magnitude,
+					20.088 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 1.0) * magnitude,
+					0,
+					0.28054 * magnitude,
+					1 - (1 - 0.82325) * magnitude,
+					-51.28815 * magnitude,
+					25.97 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 0.94375) * magnitude,
+					0,
+					0.11371 * magnitude,
+					1 - (1 - 0.80963) * magnitude,
+					-27.00883 * magnitude,
+					27.8 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 0.91125) * magnitude,
+					0,
+					0.04853 * magnitude,
+					1 - (1 - 0.766) * magnitude,
+					9.24426 * magnitude,
+					34.19 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 0.9825) * magnitude,
+					0,
+					-0.17287 * magnitude,
+					1 - (1 - 0.70702) * magnitude,
+					25.55122 * magnitude,
+					42.85 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 1.02125) * magnitude,
+					0,
+					-0.2405 * magnitude,
+					1 - (1 - 0.77915) * magnitude,
+					34.20272 * magnitude,
+					32.26 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 1.02375) * magnitude,
+					0,
+					-0.28875 * magnitude,
+					1 - (1 - 0.8225) * magnitude,
+					46.15469 * magnitude,
+					26.16 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 0.9975) * magnitude,
+					0,
+					-0.1975 * magnitude,
+					1 - (1 - 0.91375) * magnitude,
+					30.20937 * magnitude,
+					12.71 * verticalAnchor * magnitude,
+				],
 			];
 		case 'none':
 			return [];
