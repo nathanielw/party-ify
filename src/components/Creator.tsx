@@ -224,7 +224,7 @@ function renderFrame(
 	canvasCtx.globalCompositeOperation = 'source-over';
 	canvasCtx.drawImage(imageSource, 0, 0);
 	// overlay the colour blend
-	canvasCtx.globalCompositeOperation = 'overlay';
+	canvasCtx.globalCompositeOperation = settings.blendMode;
 	canvasCtx.fillStyle = rainbowColours[frameNumber];
 	canvasCtx.fillRect(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
 
