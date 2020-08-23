@@ -33,6 +33,19 @@ export function getTransformationMatrices(
 	verticalAnchor: number
 ): number[][] {
 	switch (waveStyle) {
+		case 'centered':
+			return [
+				[1, 0, 0, 1, 0, 0],
+				[1, 0, 0.223, 0.944, -33.375, 8.43 * verticalAnchor],
+				[1, 0, 0.326, 0.84, -48.94, 23.813 * verticalAnchor],
+				[1, 0, 0.315, 0.75, -47.25, 37.3 * verticalAnchor],
+				[1, 0, 0.236, 0.685, -35.44, 47.25 * verticalAnchor],
+				[1, 0, 0, 0.66, 0, 50 * verticalAnchor],
+				[1, 0, -0.236, 0.685, 35.44, 47.25 * verticalAnchor],
+				[1, 0, -0.315, 0.75, 47.25, 37.3 * verticalAnchor],
+				[1, 0, -0.326, 0.84, 48.94, 23.813 * verticalAnchor],
+				[1, 0, -0.223, 0.944, 33.375, 8.43 * verticalAnchor],
+			];
 		case 'classic':
 			return [
 				[1, 0, 0, 1, 0, 0],
