@@ -391,6 +391,10 @@ export default function Creator(): JSX.Element {
 		gifRenderer.render();
 	};
 
+	const onOutputRendered = (outputElement: HTMLDivElement | null) => {
+		outputElement?.scrollIntoView();
+	};
+
 	return (
 		<section className='Creator'>
 			<FileSelector onFileSelected={onFileSelected} />
@@ -411,10 +415,10 @@ export default function Creator(): JSX.Element {
 			</button>
 
 			{outputImageBlobUrl && (
-				<>
-					<p>Right click / long-press on the image, choose save, and get the party started!</p>
-					<img alt='' src={outputImageBlobUrl} />
-				</>
+				<div className='Output' ref={onOutputRendered}>
+					<p>Right click / long-press on the image below, choose save, and get the party started!</p>
+					<img className='Output__Image' alt='' src={outputImageBlobUrl} />
+				</div>
 			)}
 		</section>
 	);

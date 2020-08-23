@@ -1,0 +1,11 @@
+@use '../core/spacing';
+
+.Output {
+	text-align: center;
+	margin-top: spacing.$v;
+}
+
+.Output__Image {
+	margin-top: spacing.$v;
+	margin-bottom: spacing.$v;
+}
