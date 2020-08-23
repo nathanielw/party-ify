@@ -4,6 +4,7 @@
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+	width: 100%;
 	padding: 12px;
 	font-family: 'Lato', sans-serif;
 	font-size: 0.83rem;
@@ -25,4 +26,5 @@
 
 .MessagePreview__Emoji {
 	margin-left: 6px;
+	margin-right: 6px;
 }

@@ -397,8 +397,10 @@ export default function Creator(): JSX.Element {
 
 			<div className='SettingsContainer'>
 				<Settings onSettingsChanged={setSettings} />
-				<div className='SettingsContainer__Section'>
-					<canvas ref={previewCanvasRef} />
+				<div className='SettingsContainer__Section PreviewSection'>
+					<div className='PreviewSection__Big'>
+						<canvas ref={previewCanvasRef} />
+					</div>
 
 					<MessagePreview onReady={addPreviewRenderListener} onDestroy={removePreviewRenderListener} />
 				</div>

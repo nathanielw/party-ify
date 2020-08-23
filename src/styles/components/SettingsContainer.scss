@@ -15,14 +15,17 @@
 .SettingsContainer__Section {
 	flex-basis: 0;
 	flex-grow: 1;
-	margin-left: spacing.$h;
-	margin-right: spacing.$h;
 
-	&:first-child {
-		margin-left: 0;
-	}
+	@media #{media.$md} {
+		margin-left: spacing.$h;
+		margin-right: spacing.$h;
 
-	&:last-child {
-		margin-right: 0;
+		&:first-child {
+			margin-left: 0;
+		}
+
+		&:last-child {
+			margin-right: 0;
+		}
 	}
 }

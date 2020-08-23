@@ -1,0 +1,17 @@
+@use '../core/spacing';
+
+.PreviewSection {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.PreviewSection__Big {
+	width: 100%;
+	padding: spacing.$v * 5 0;
+	margin-bottom: spacing.$v;
+	text-align: center;
+	border-radius: 6px;
+	background: #fff;
+}
