@@ -1,6 +1,7 @@
 export const waveStyles = {
 	classic: 'Classic',
 	centered: 'Centered',
+	none: 'None',
 };
 
 export const blendModes = {
@@ -59,6 +60,8 @@ export function getTransformationMatrices(
 				[1.02375, 0, -0.28875, 0.8225, 46.15469, 26.16 * verticalAnchor],
 				[0.9975, 0, -0.1975, 0.91375, 30.20937, 12.71 * verticalAnchor],
 			];
+		case 'none':
+			return [];
 	}
 
 	return [];

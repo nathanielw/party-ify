@@ -192,8 +192,10 @@ function generateCachedFrames(
 		bottom: 0,
 	};
 
+	const transformationMatrices = getTransformationMatrices(settings.waveStyle, settings.verticalCenter);
+
 	for (let i = 0; i < frameCount; i++) {
-		renderFrame(i, ctx, image, imageSizing, settings);
+		renderFrame(i, ctx, image, imageSizing, settings, transformationMatrices);
 		cachedFrames.push(ctx.getImageData(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight));
 
 		const computedBounds = getPixelBounds(canvas);
@@ -212,14 +214,14 @@ function renderFrame(
 	canvasCtx: CanvasRenderingContext2D,
 	imageSource: CanvasImageSource,
 	imageSizing: ImageSizing,
-	settings: SettingsValues
+	settings: SettingsValues,
+	transformationMatrices: number[][]
 ) {
+	const frameTransformation = transformationMatrices[frameNumber % transformationMatrices.length] ?? [];
 	canvasCtx.globalCompositeOperation = 'source-over';
 	canvasCtx.clearRect(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
 
-	canvasCtx.setTransform(
-		...(getTransformationMatrices(settings.waveStyle, settings.verticalCenter)[frameNumber] as DOMMatrix2DInit[])
-	);
+	canvasCtx.setTransform(...(frameTransformation as DOMMatrix2DInit[]));
 	// draw base image
 	canvasCtx.globalCompositeOperation = 'source-over';
 	canvasCtx.drawImage(imageSource, 0, 0);
