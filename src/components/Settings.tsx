@@ -7,6 +7,8 @@ export interface SettingsValues {
 	verticalCenter: number;
 	magnitude: number;
 	colourScheme: keyof typeof colourLabels;
+	contrast: number;
+	brightness: number;
 }
 
 export const defaultSettings: SettingsValues = {
@@ -15,6 +17,8 @@ export const defaultSettings: SettingsValues = {
 	verticalCenter: 1,
 	magnitude: 1,
 	colourScheme: 'classic',
+	contrast: 0,
+	brightness: 1,
 };
 
 export default function Settings(props: { onSettingsChanged: (values: SettingsValues) => void }): JSX.Element {
@@ -23,6 +27,8 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 	const magnitudeInputRef = useRef<HTMLInputElement>(null);
 	const blendInputRef = useRef<HTMLSelectElement>(null);
 	const colourInputRef = useRef<HTMLSelectElement>(null);
+	const contrastInputRef = useRef<HTMLInputElement>(null);
+	const brightnessInputRef = useRef<HTMLInputElement>(null);
 
 	const onInputChange = () => {
 		const newSettings: SettingsValues = {
@@ -38,6 +44,14 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 				magnitudeInputRef.current?.value != null
 					? Number.parseFloat(magnitudeInputRef.current?.value)
 					: defaultSettings.verticalCenter,
+			contrast:
+				contrastInputRef.current?.value != null
+					? Number.parseFloat(contrastInputRef.current?.value)
+					: defaultSettings.contrast,
+			brightness:
+				brightnessInputRef.current?.value != null
+					? Number.parseFloat(brightnessInputRef.current?.value)
+					: defaultSettings.brightness,
 		};
 
 		props.onSettingsChanged(newSettings);
@@ -89,18 +103,6 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 				onChange={onInputChange}
 			/>
 
-			<label className='Settings__Label' htmlFor='blend-select'>
-				Rainbow blend mode:
-			</label>
-			{/* eslint-disable-next-line jsx-a11y/no-onchange */}
-			<select className='Settings__Input' id='blend-select' ref={blendInputRef} onChange={onInputChange}>
-				{Object.keys(blendModes).map((key) => (
-					<option key={key} value={key}>
-						{blendModes[key as keyof typeof blendModes]}
-					</option>
-				))}
-			</select>
-
 			<label className='Settings__Label' htmlFor='colour-select'>
 				Rainbow colours:
 			</label>
@@ -109,6 +111,48 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 				{Object.keys(colourLabels).map((key) => (
 					<option key={key} value={key}>
 						{colourLabels[key as keyof typeof colourLabels]}
+					</option>
+				))}
+			</select>
+
+			<label className='Settings__Label' htmlFor='contrast-slider'>
+				Contrast:
+			</label>
+			<input
+				className='Settings__Input'
+				id='contrast-slider'
+				type='range'
+				min='-1'
+				max='1'
+				step='0.05'
+				ref={contrastInputRef}
+				defaultValue={defaultSettings.contrast}
+				onChange={onInputChange}
+			/>
+
+			<label className='Settings__Label' htmlFor='brightness-slider'>
+				Brightness:
+			</label>
+			<input
+				className='Settings__Input'
+				id='brightness-slider'
+				type='range'
+				min='0'
+				max='2'
+				step='0.05'
+				ref={brightnessInputRef}
+				defaultValue={defaultSettings.brightness}
+				onChange={onInputChange}
+			/>
+
+			<label className='Settings__Label' htmlFor='blend-select'>
+				Rainbow blend mode:
+			</label>
+			{/* eslint-disable-next-line jsx-a11y/no-onchange */}
+			<select className='Settings__Input' id='blend-select' ref={blendInputRef} onChange={onInputChange}>
+				{Object.keys(blendModes).map((key) => (
+					<option key={key} value={key}>
+						{blendModes[key as keyof typeof blendModes]}
 					</option>
 				))}
 			</select>

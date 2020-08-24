@@ -137,7 +137,8 @@ function getImageSizing(imageMeta: ImageMeta): ImageSizing {
 function prepForRender(
 	imageSizing: ImageSizing,
 	preProcessedImageCtx: CanvasRenderingContext2D,
-	image: HTMLImageElement
+	image: HTMLImageElement,
+	settings: SettingsValues
 ) {
 	preProcessedImageCtx.drawImage(
 		image,
@@ -155,11 +156,17 @@ function prepForRender(
 	const grayscaleImage = preProcessedImageCtx.getImageData(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
 	const pixels = grayscaleImage.data;
 
+	const brightnessFactor = settings.brightness;
+	const contrast = settings.contrast * 254;
+	const contrastFactor = (255 + contrast) / (255 - contrast);
+
 	for (let i = 0; i < pixels.length; i += 4) {
 		const brightness = pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
-		pixels[i] = brightness;
-		pixels[i + 1] = brightness;
-		pixels[i + 2] = brightness;
+		const valueAdjusted = brightnessFactor * (contrastFactor * (brightness - 128) + 128);
+
+		pixels[i] = valueAdjusted;
+		pixels[i + 1] = valueAdjusted;
+		pixels[i + 2] = valueAdjusted;
 	}
 
 	preProcessedImageCtx.putImageData(grayscaleImage, 0, 0);
@@ -311,7 +318,7 @@ export default function Creator(): JSX.Element {
 		imagePrepCanvas.width = canvasWidth;
 		imagePrepCanvas.height = canvasHeight;
 
-		prepForRender(imageSizing, imagePrepCtx, image);
+		prepForRender(imageSizing, imagePrepCtx, image, settings);
 		const cachedData = generateCachedFrames(settings, imageSizing, imagePrepCanvas);
 		setCachedFrameData(cachedData);
 
