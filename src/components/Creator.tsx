@@ -258,6 +258,7 @@ export default function Creator(): JSX.Element {
 	const [cachedFrameData, setCachedFrameData] = useState<CachedFrameData | null>();
 
 	const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+	const outputElementRef = useRef<HTMLDivElement>(null);
 
 	const onFileSelected = (file: File | undefined) => {
 		image.src = URL.createObjectURL(file);
@@ -395,10 +396,8 @@ export default function Creator(): JSX.Element {
 		}
 
 		gifRenderer.render();
-	};
 
-	const onOutputRendered = (outputElement: HTMLDivElement | null) => {
-		outputElement?.scrollIntoView();
+		outputElementRef.current?.scrollIntoView();
 	};
 
 	return (
@@ -420,12 +419,14 @@ export default function Creator(): JSX.Element {
 				3. Generate GIF
 			</button>
 
-			{outputImageBlobUrl && (
-				<div className='Output' ref={onOutputRendered}>
-					<p>Right click / long-press on the image below, choose save, and get the party started!</p>
-					<img className='Output__Image' alt='' src={outputImageBlobUrl} />
-				</div>
-			)}
+			<div className='Output' ref={outputElementRef}>
+				{outputImageBlobUrl && (
+					<>
+						<p>Right click / long-press on the image below, choose save, and get the party started!</p>
+						<img className='Output__Image' alt='' src={outputImageBlobUrl} />
+					</>
+				)}
+			</div>
 		</section>
 	);
 }
