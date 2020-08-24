@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import FileSelector from './FileSelector';
 import MessagePreview from './MessagePreview';
 import Settings, { SettingsValues, defaultSettings } from './Settings';
-import { frameCount, getTransformationMatrices, rainbowColours } from '../config/animation';
+import { frameCount, getTransformationMatrices, colours, colourLabels } from '../config/animation';
 
 const maxWidth = 100;
 const maxHeight = maxWidth;
@@ -231,7 +231,7 @@ function renderFrame(
 	canvasCtx.drawImage(imageSource, 0, 0);
 	// overlay the colour blend
 	canvasCtx.globalCompositeOperation = settings.blendMode;
-	canvasCtx.fillStyle = rainbowColours[frameNumber];
+	canvasCtx.fillStyle = colours[settings.colourScheme][frameNumber];
 	canvasCtx.fillRect(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
 
 	// mask using the original image

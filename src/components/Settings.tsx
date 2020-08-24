@@ -1,11 +1,12 @@
 import React, { useRef } from 'react';
-import { waveStyles, blendModes } from '../config/animation';
+import { waveStyles, blendModes, colourLabels } from '../config/animation';
 
 export interface SettingsValues {
 	waveStyle: keyof typeof waveStyles;
 	blendMode: keyof typeof blendModes;
 	verticalCenter: number;
 	magnitude: number;
+	colourScheme: keyof typeof colourLabels;
 }
 
 export const defaultSettings: SettingsValues = {
@@ -13,6 +14,7 @@ export const defaultSettings: SettingsValues = {
 	blendMode: 'overlay',
 	verticalCenter: 1,
 	magnitude: 1,
+	colourScheme: 'classic',
 };
 
 export default function Settings(props: { onSettingsChanged: (values: SettingsValues) => void }): JSX.Element {
@@ -20,11 +22,14 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 	const centerInputRef = useRef<HTMLInputElement>(null);
 	const magnitudeInputRef = useRef<HTMLInputElement>(null);
 	const blendInputRef = useRef<HTMLSelectElement>(null);
+	const colourInputRef = useRef<HTMLSelectElement>(null);
 
 	const onInputChange = () => {
 		const newSettings: SettingsValues = {
 			waveStyle: (waveInputRef.current?.value as keyof typeof waveStyles) ?? defaultSettings.waveStyle,
 			blendMode: (blendInputRef.current?.value as keyof typeof blendModes) ?? defaultSettings.blendMode,
+			colourScheme: (colourInputRef.current?.value as keyof typeof colourLabels) ?? defaultSettings.colourScheme,
+
 			verticalCenter:
 				centerInputRef.current?.value != null
 					? Number.parseFloat(centerInputRef.current?.value)
@@ -92,6 +97,18 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 				{Object.keys(blendModes).map((key) => (
 					<option key={key} value={key}>
 						{blendModes[key as keyof typeof blendModes]}
+					</option>
+				))}
+			</select>
+
+			<label className='Settings__Label' htmlFor='colour-select'>
+				Rainbow colours:
+			</label>
+			{/* eslint-disable-next-line jsx-a11y/no-onchange */}
+			<select className='Settings__Input' id='colour-select' ref={colourInputRef} onChange={onInputChange}>
+				{Object.keys(colourLabels).map((key) => (
+					<option key={key} value={key}>
+						{colourLabels[key as keyof typeof colourLabels]}
 					</option>
 				))}
 			</select>

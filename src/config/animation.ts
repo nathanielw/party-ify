@@ -10,20 +10,69 @@ export const blendModes = {
 };
 
 // Colours for the background. There's so few it's not worth trying to do any clever generation
-export const rainbowColours = [
-	'#ff6968',
-	'#fe6cb7',
-	'#ff68f7',
-	'#ff8cff',
-	'#d78cff',
-	'#8bb5fe',
-	'#87ffff',
-	'#88ff89',
-	'#fed689',
-	'#ff8d8b',
-];
+export const colours = {
+	classic: [
+		'#ff6968',
+		'#fe6cb7',
+		'#ff68f7',
+		'#ff8cff',
+		'#d78cff',
+		'#8bb5fe',
+		'#87ffff',
+		'#88ff89',
+		'#fed689',
+		'#ff8d8b',
+	],
+	kakapo: [
+		'#53752e',
+		'#678d31',
+		'#74a145',
+		'#94d64d',
+		'#97e346',
+		'#aaf757',
+		'#93d64b',
+		'#91bd62',
+		'#84b352',
+		'#48820a',
+	],
+	cockatoo: [
+		'#ffffff',
+		'#ffffff',
+		'#ffffff',
+		'#ffffff',
+		'#ffffff',
+		'#ffffff',
+		'#ffffff',
+		'#ffffff',
+		'#ffffff',
+		'#ffffff',
+	],
+	galah: ['#ff79f8', '#ff57cb', '#ff329a', '#ff0968', '#f60088', '#fa31ff', '#f72fa7', '#f34bc6', '#f48dff', '#f2a2ff'],
+	king: ['#549310', '#6bab12', '#f2be03', '#fc9e41', '#f57118', '#d17205', '#fa8d2d', '#ed881c', '#e5cf24', '#9aae04'],
+	hyacinth: [
+		'#46f6ff',
+		'#007efe',
+		'#009fff',
+		'#0029c9',
+		'#3b4ee4',
+		'#5e72ff',
+		'#0095ff',
+		'#00b2ff',
+		'#00ccff',
+		'#00e2ff',
+	],
+};
 
-export const frameCount = rainbowColours.length;
+export const colourLabels: { [key in keyof typeof colours]: string } = {
+	classic: 'Classic',
+	kakapo: 'Kākāpō green',
+	cockatoo: 'Cockatoo white',
+	galah: 'Galah pink',
+	hyacinth: 'Hyacinth blue',
+	king: 'King green+orange',
+};
+
+export const frameCount = 10; // This could be made more flexible with some LCM math to allow for different frame counts
 
 // Again, hardcoding because it's easier than figuring out a formula for the animation path
 // The transformations are based on a canvas size of 200x200px, which is Not Great™, but sufficient for what this is (a hack)
