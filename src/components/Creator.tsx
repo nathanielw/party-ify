@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import FileSelector from './FileSelector';
 import MessagePreview from './MessagePreview';
-import Settings, { SettingsValues, defaultSettings } from './Settings';
+import Settings, { SettingsValues, defaultSettings, NONE_COLOUR_NAME } from './Settings';
 import { frameCount, getTransformationMatrices, colours, colourLabels } from '../config/animation';
 
 const maxWidth = 100;
@@ -152,24 +152,26 @@ function prepForRender(
 		imageSizing.imageRegionHeight
 	);
 
-	// Convert to grayscale
-	const grayscaleImage = preProcessedImageCtx.getImageData(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
-	const pixels = grayscaleImage.data;
+	if (settings.colourScheme !== NONE_COLOUR_NAME) {
+		// Convert to grayscale
+		const grayscaleImage = preProcessedImageCtx.getImageData(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
+		const pixels = grayscaleImage.data;
 
-	const brightnessFactor = settings.brightness;
-	const contrast = settings.contrast * 254;
-	const contrastFactor = (255 + contrast) / (255 - contrast);
+		const brightnessFactor = settings.brightness;
+		const contrast = settings.contrast * 254;
+		const contrastFactor = (255 + contrast) / (255 - contrast);
 
-	for (let i = 0; i < pixels.length; i += 4) {
-		const brightness = pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
-		const valueAdjusted = brightnessFactor * (contrastFactor * (brightness - 128) + 128);
+		for (let i = 0; i < pixels.length; i += 4) {
+			const brightness = pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
+			const valueAdjusted = brightnessFactor * (contrastFactor * (brightness - 128) + 128);
 
-		pixels[i] = valueAdjusted;
-		pixels[i + 1] = valueAdjusted;
-		pixels[i + 2] = valueAdjusted;
+			pixels[i] = valueAdjusted;
+			pixels[i + 1] = valueAdjusted;
+			pixels[i + 2] = valueAdjusted;
+		}
+
+		preProcessedImageCtx.putImageData(grayscaleImage, 0, 0);
 	}
-
-	preProcessedImageCtx.putImageData(grayscaleImage, 0, 0);
 }
 
 /**
@@ -236,10 +238,13 @@ function renderFrame(
 	// draw base image
 	canvasCtx.globalCompositeOperation = 'source-over';
 	canvasCtx.drawImage(imageSource, 0, 0);
+
 	// overlay the colour blend
-	canvasCtx.globalCompositeOperation = settings.blendMode;
-	canvasCtx.fillStyle = colours[settings.colourScheme][frameNumber];
-	canvasCtx.fillRect(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
+	if (settings.colourScheme in colours) {
+		canvasCtx.globalCompositeOperation = settings.blendMode;
+		canvasCtx.fillStyle = colours[settings.colourScheme as keyof typeof colours][frameNumber];
+		canvasCtx.fillRect(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
+	}
 
 	// mask using the original image
 	canvasCtx.globalCompositeOperation = 'destination-in';

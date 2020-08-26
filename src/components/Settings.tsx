@@ -6,7 +6,7 @@ export interface SettingsValues {
 	blendMode: keyof typeof blendModes;
 	verticalCenter: number;
 	magnitude: number;
-	colourScheme: keyof typeof colourLabels;
+	colourScheme: keyof typeof colourOptions;
 	contrast: number;
 	brightness: number;
 }
@@ -19,6 +19,13 @@ export const defaultSettings: SettingsValues = {
 	colourScheme: 'classic',
 	contrast: 0,
 	brightness: 1,
+};
+
+export const NONE_COLOUR_NAME = 'none';
+
+const colourOptions = {
+	...colourLabels,
+	[NONE_COLOUR_NAME]: 'None',
 };
 
 export default function Settings(props: { onSettingsChanged: (values: SettingsValues) => void }): JSX.Element {
@@ -108,54 +115,58 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 			</label>
 			{/* eslint-disable-next-line jsx-a11y/no-onchange */}
 			<select className='Settings__Input' id='colour-select' ref={colourInputRef} onChange={onInputChange}>
-				{Object.keys(colourLabels).map((key) => (
+				{Object.keys(colourOptions).map((key) => (
 					<option key={key} value={key}>
-						{colourLabels[key as keyof typeof colourLabels]}
+						{colourOptions[key as keyof typeof colourOptions]}
 					</option>
 				))}
 			</select>
 
-			<label className='Settings__Label' htmlFor='contrast-slider'>
-				Contrast:
-			</label>
-			<input
-				className='Settings__Input'
-				id='contrast-slider'
-				type='range'
-				min='-1'
-				max='1'
-				step='0.05'
-				ref={contrastInputRef}
-				defaultValue={defaultSettings.contrast}
-				onChange={onInputChange}
-			/>
+			{colourInputRef.current?.value !== NONE_COLOUR_NAME && (
+				<>
+					<label className='Settings__Label' htmlFor='contrast-slider'>
+						Contrast:
+					</label>
+					<input
+						className='Settings__Input'
+						id='contrast-slider'
+						type='range'
+						min='-1'
+						max='1'
+						step='0.05'
+						ref={contrastInputRef}
+						defaultValue={defaultSettings.contrast}
+						onChange={onInputChange}
+					/>
 
-			<label className='Settings__Label' htmlFor='brightness-slider'>
-				Brightness:
-			</label>
-			<input
-				className='Settings__Input'
-				id='brightness-slider'
-				type='range'
-				min='0'
-				max='2'
-				step='0.05'
-				ref={brightnessInputRef}
-				defaultValue={defaultSettings.brightness}
-				onChange={onInputChange}
-			/>
+					<label className='Settings__Label' htmlFor='brightness-slider'>
+						Brightness:
+					</label>
+					<input
+						className='Settings__Input'
+						id='brightness-slider'
+						type='range'
+						min='0'
+						max='2'
+						step='0.05'
+						ref={brightnessInputRef}
+						defaultValue={defaultSettings.brightness}
+						onChange={onInputChange}
+					/>
 
-			<label className='Settings__Label' htmlFor='blend-select'>
-				Rainbow blend mode:
-			</label>
-			{/* eslint-disable-next-line jsx-a11y/no-onchange */}
-			<select className='Settings__Input' id='blend-select' ref={blendInputRef} onChange={onInputChange}>
-				{Object.keys(blendModes).map((key) => (
-					<option key={key} value={key}>
-						{blendModes[key as keyof typeof blendModes]}
-					</option>
-				))}
-			</select>
+					<label className='Settings__Label' htmlFor='blend-select'>
+						Rainbow blend mode:
+					</label>
+					{/* eslint-disable-next-line jsx-a11y/no-onchange */}
+					<select className='Settings__Input' id='blend-select' ref={blendInputRef} onChange={onInputChange}>
+						{Object.keys(blendModes).map((key) => (
+							<option key={key} value={key}>
+								{blendModes[key as keyof typeof blendModes]}
+							</option>
+						))}
+					</select>
+				</>
+			)}
 		</div>
 	);
 }
