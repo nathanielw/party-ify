@@ -3,7 +3,7 @@
 @use '../core/media';
 
 .Intro {
-	font-family: type.$familyHeadings;
+	font-family: type.$familyTitle;
 	text-transform: lowercase;
 	color: colours.$flamingoPink;
 	text-shadow: 2px 2px 0 #FFD79C, 4px 4px 0 #ff880a9c, 6px 6px 0 #f9a77f87, 8px 8px 0 #ffd0ce;

@@ -428,7 +428,7 @@ export default function Creator(): JSX.Element {
 			</div>
 
 			<button type='button' className='Button' onClick={generateGif}>
-				3. Generate GIF
+				Generate GIF
 			</button>
 
 			<div className='Output' ref={outputElementRef}>

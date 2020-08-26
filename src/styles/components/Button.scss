@@ -2,20 +2,75 @@
 @use '../core/colours';
 @use '../core/type';
 
+$_bgOffset: 15px;
+$_borderWidth: 5px;
+$_hoverOffset: ($_bgOffset - $_borderWidth) / -2;
+$_pressedOffset: $_bgOffset - $_borderWidth;
+$_transitionDuration: 0.05s;
+
 .Button {
+	position: relative;
 	padding: 22px 48px 18px;
 	margin-bottom: 8px;
-	width: 100%;
+	width: calc(100% - #{$_bgOffset - $_borderWidth});
 	line-height: 1;
-	font-family: type.$familyHeadings;
-	text-transform: lowercase;
+	font-family: type.$familyBody;
+	font-weight: 700;
+	text-transform: uppercase;
 	text-align: center;
-	font-size: 1.5rem;
-	background: colours.$kakapoGreen;
-	color: #ffffff;
-	border: none;
-	border-radius: 2em;
-	box-shadow: 8px 8px 0 colours.$kakapoGreen--dark;
+	font-size: 1rem;
+	background: #fff;
+	color: colours.$flamingoPink;
+	border: $_borderWidth solid colours.$flamingoPink;
+	border-radius: 11px;
 	cursor: pointer;
 	display: inline-block;
+	top: 0;
+	left: 0;
+	transition: top $_transitionDuration ease-out, left $_transitionDuration ease-out;
+
+	&::before {
+		content: '';
+		position: absolute;
+		width: calc(100% + #{$_bgOffset + $_borderWidth});
+		height: calc(100% + #{$_bgOffset + $_borderWidth});
+		right: $_bgOffset * -1;
+		bottom: $_bgOffset * -1;
+		border-radius: 25px 25px 11px;
+		background: colours.$flamingoPink;
+		z-index: -1;
+		transition: all $_transitionDuration ease-out;
+		transition-property: width, height, right, bottom, border-radius;
+	}
+
+	&:focus, input:focus + &,
+	&:hover {
+		top: $_hoverOffset;
+		left: $_hoverOffset;
+
+		&::before {
+			width: calc(100% + #{$_bgOffset + $_borderWidth - $_hoverOffset});
+			height: calc(100% + #{$_bgOffset + $_borderWidth - $_hoverOffset});
+			right: ($_bgOffset * -1) + $_hoverOffset;
+			bottom: ($_bgOffset * -1) + $_hoverOffset;
+			border-radius: 32px 32px 11px;
+		}
+	}
+
+	&:active {
+		top: $_pressedOffset;
+		left: $_pressedOffset;
+
+		&::before {
+			width: calc(100% + #{$_bgOffset + $_borderWidth - $_pressedOffset});
+			height: calc(100% + #{$_bgOffset + $_borderWidth - $_pressedOffset});
+			right: ($_bgOffset * -1) + $_pressedOffset;
+			bottom: ($_bgOffset * -1) + $_pressedOffset;
+			border-radius: 11px;
+		}
+	}
+
+	&:focus, input:focus + & {
+		outline: 2px dashed white;
+	}
 }

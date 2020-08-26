@@ -17,7 +17,7 @@ export default function FileSelector(props: { onFileSelected: (fileUrl: File | u
 				ref={fileInputRef}
 			/>
 			<label htmlFor='file-input' className='Button FileSelector__Label'>
-				1. Choose an image...
+				Pick an image...
 			</label>
 		</>
 	);
