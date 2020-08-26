@@ -1,9 +1,10 @@
 @use '../core/media';
 @use '../core/spacing';
+@use '../core/colours';
 
 .SettingsContainer {
 	display: flex;
-	flex-direction: column;
+	flex-direction: column-reverse;
 	margin-top: spacing.$v * 5;
 	margin-bottom: spacing.$v * 5;
 
@@ -13,19 +14,40 @@
 }
 
 .SettingsContainer__Section {
+	padding: spacing.$v * 2 spacing.$h * 2;
 	flex-basis: 0;
 	flex-grow: 1;
+	background: #fff;
+	border-radius: 0 0 8px 8px;
 
 	@media #{media.$md} {
-		margin-left: spacing.$h;
-		margin-right: spacing.$h;
+		border-radius: 8px 0 0 8px;
+	}
+}
 
-		&:first-child {
-			margin-left: 0;
-		}
+.SettingsContainer__Section--secondary {
+	border-radius: 8px 8px 0 0;
+	position: sticky;
+	top: 20px;
+	border-bottom: 2px solid colours.$canaryYellow;
 
-		&:last-child {
-			margin-right: 0;
-		}
+	&::before {
+		content: '';
+		position: absolute;
+		top: -20px;
+		left: 0;
+		width: 100%;
+		height: 20px;
+		background: colours.$canaryYellow;
+	}
+
+	@media #{media.$md} {
+		border-radius: 0 8px 8px 0;
+		background: rgba(#fff, 0.5);
+		border: none;
+	}
+
+	@media (max-height: 580px) {
+		position: static;
 	}
 }

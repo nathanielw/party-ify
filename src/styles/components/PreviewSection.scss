@@ -1,3 +1,4 @@
+@use '../core/media';
 @use '../core/spacing';
 
 .PreviewSection {
@@ -9,9 +10,12 @@
 
 .PreviewSection__Big {
 	width: 100%;
-	padding: spacing.$v * 5 0;
-	margin-bottom: spacing.$v;
+	padding: 0 0 spacing.$v * 2;
 	text-align: center;
 	border-radius: 6px;
-	background: #fff;
+
+
+	@media #{media.$md} {
+		padding: spacing.$v * 5 0;
+	}
 }

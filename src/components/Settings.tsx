@@ -68,7 +68,7 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 		<div className='Settings SettingsContainer__Section'>
 			<h2 className='Heading Heading--2'>2. Settings</h2>
 			<label className='Settings__Label' htmlFor='wave-select'>
-				Wavey style:
+				Wavey style
 			</label>
 			{/* eslint-disable-next-line jsx-a11y/no-onchange */}
 			<select className='Settings__Input' id='wave-select' ref={waveInputRef} onChange={onInputChange}>
@@ -80,7 +80,7 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 			</select>
 
 			<label className='Settings__Label' htmlFor='magnitude-slider'>
-				Party magnitude:
+				Party magnitude
 			</label>
 			<input
 				className='Settings__Input'
@@ -95,7 +95,7 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 			/>
 
 			<label className='Settings__Label' htmlFor='center-slider'>
-				Vertical center:
+				Vertical center
 			</label>
 			{/* TODO: sort out the scale transform so the min/max of this can be more logical numbers */}
 			<input
@@ -111,7 +111,7 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 			/>
 
 			<label className='Settings__Label' htmlFor='colour-select'>
-				Rainbow colours:
+				Rainbow colours
 			</label>
 			{/* eslint-disable-next-line jsx-a11y/no-onchange */}
 			<select className='Settings__Input' id='colour-select' ref={colourInputRef} onChange={onInputChange}>
@@ -125,7 +125,7 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 			{colourInputRef.current?.value !== NONE_COLOUR_NAME && (
 				<>
 					<label className='Settings__Label' htmlFor='contrast-slider'>
-						Contrast:
+						Contrast
 					</label>
 					<input
 						className='Settings__Input'
@@ -140,7 +140,7 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 					/>
 
 					<label className='Settings__Label' htmlFor='brightness-slider'>
-						Brightness:
+						Brightness
 					</label>
 					<input
 						className='Settings__Input'
@@ -155,7 +155,7 @@ export default function Settings(props: { onSettingsChanged: (values: SettingsVa
 					/>
 
 					<label className='Settings__Label' htmlFor='blend-select'>
-						Rainbow blend mode:
+						Rainbow blend mode
 					</label>
 					{/* eslint-disable-next-line jsx-a11y/no-onchange */}
 					<select className='Settings__Input' id='blend-select' ref={blendInputRef} onChange={onInputChange}>

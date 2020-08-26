@@ -3,8 +3,8 @@
 
 .Settings__Label {
 	display: inline-block;
-	font-weight: 700;
 	margin-bottom: spacing.$v;
+	text-transform: lowercase;
 }
 
 .Settings__Input {
@@ -12,4 +12,9 @@
 	font-family: type.$familyBody;
 	width: 100%;
 	margin-bottom: 2 * spacing.$v;
+	text-transform: lowercase;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
 }

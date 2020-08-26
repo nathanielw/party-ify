@@ -418,7 +418,7 @@ export default function Creator(): JSX.Element {
 
 			<div className='SettingsContainer'>
 				<Settings onSettingsChanged={setSettings} />
-				<div className='SettingsContainer__Section PreviewSection'>
+				<div className='SettingsContainer__Section SettingsContainer__Section--secondary PreviewSection'>
 					<div className='PreviewSection__Big'>
 						<canvas ref={previewCanvasRef} />
 					</div>
