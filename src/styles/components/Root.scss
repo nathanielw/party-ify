@@ -8,6 +8,8 @@
 html {
 	font-family: type.$familyBody;
 	font-size: type.$baseSize;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 * {

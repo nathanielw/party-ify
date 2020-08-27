@@ -1,0 +1,22 @@
+@use '../core/colours';
+@use '../core/type';
+@use '../core/spacing';
+
+.Footer {
+	margin-top: spacing.$v * 10;
+	text-transform: lowercase;
+	font-weight: 700;
+	font-style: italic;
+	text-align: center;
+	line-height: 1.5;
+	color: colours.$flamingoPink;
+}
+
+.Footer__Paragraph {
+	margin-bottom: spacing.$v * 2;
+}
+
+.Footer__Icon {
+	width: 1em;
+	height: auto;
+}

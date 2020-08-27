@@ -4,6 +4,7 @@ import Intro from './components/Intro';
 import Creator from './components/Creator';
 import Modal from './components/Modal';
 import { useLocalStorage } from './util/useLocalStorage';
+import Footer from './components/Footer';
 
 export default function App(): JSX.Element {
 	const [hasSeenModal, setHasSeenModal] = useLocalStorage<boolean>('hasSeenModal', false);
@@ -23,6 +24,8 @@ export default function App(): JSX.Element {
 				<Intro />
 
 				<Creator />
+
+				<Footer />
 			</main>
 
 			<Modal onClose={handleModalClose} isOpen={isModalOpen}>
