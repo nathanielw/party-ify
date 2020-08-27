@@ -74,3 +74,13 @@ $_transitionDuration: 0.05s;
 		outline: 2px dashed white;
 	}
 }
+
+.Button--secondary {
+	color: #000;
+	border-color: #000;
+
+	&::before {
+		border-color: #000;
+		background: #000;
+	}
+}

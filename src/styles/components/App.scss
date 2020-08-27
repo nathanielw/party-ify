@@ -2,5 +2,11 @@
 	max-width: 760px;
 	width: 100%;
 	margin: auto;
-	padding: 0 20px 50px;
+	padding: 0 20px;
+}
+
+.App__Main--modalOpen {
+	filter: blur(10px);
+	overflow: hidden;
+	max-height: 100vh;
 }

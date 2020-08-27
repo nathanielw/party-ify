@@ -1,0 +1,32 @@
+@use '../core/spacing';
+
+.Modal {
+	max-width: 560px;
+	width: 100%;
+	padding: spacing.$v * 2 spacing.$h * 3 spacing.$v * 2.5;
+	background: #fff;
+	border-radius: 10px;
+	box-shadow: 0px 5px 40px rgba(0, 0, 0, 0.1);
+	z-index: 1;
+}
+
+.Modal__Background {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	padding: spacing.$v * 2 spacing.$h * 2;
+	background: #fff;
+}
+
+.Modal__Text {
+	text-transform: lowercase;
+	margin-bottom: spacing.$v * 4;
+	margin-top: spacing.$v * 4;
+	line-height: 1.5;
+	font-weight: 700;
+}
