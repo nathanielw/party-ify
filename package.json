@@ -3,8 +3,10 @@
   "version": "0.0.1",
   "description": "Website that turns any image into a party-parrot style gif",
   "license": "MIT",
+  "homepage": "https://nathanielw.github.io/party-ify",
   "main": "src/index.tsx",
   "dependencies": {
+    "gh-pages": "^3.1.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-focus-lock": "^2.4.1",
@@ -27,6 +29,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "eject": "react-scripts eject"
   },
   "browserslist": [
