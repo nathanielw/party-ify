@@ -209,7 +209,25 @@ function generateCachedFrames(
 
 	for (let i = 0; i < frameCount; i++) {
 		renderFrame(i, ctx, image, imageSizing, settings, transformationMatrices);
-		cachedFrames.push(ctx.getImageData(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight));
+		const rawData = ctx.getImageData(0, 0, imageSizing.canvasWidth, imageSizing.canvasHeight);
+		const rawPixels = rawData.data;
+
+		// Hack to deal with the GIF encoder needing a key colour to make transparent. Without this, black (which we
+		// specify as the key colour) would become transparent. So this here replaces solid black with slightly-off-black
+		for (let pixelIndex = 0; pixelIndex < rawPixels.length; pixelIndex += 4) {
+			if (
+				rawPixels[pixelIndex] === 0 &&
+				rawPixels[pixelIndex + 1] === 0 &&
+				rawPixels[pixelIndex + 2] === 0 &&
+				rawPixels[pixelIndex + 3] !== 0
+			) {
+				rawPixels[pixelIndex] = 1;
+				rawPixels[pixelIndex + 1] = 1;
+				rawPixels[pixelIndex + 2] = 1;
+			}
+		}
+
+		cachedFrames.push(rawData);
 
 		const computedBounds = getPixelBounds(canvas);
 
