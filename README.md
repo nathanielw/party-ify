@@ -1,4 +1,4 @@
-# Party-ify
+# [Party-ify](https://nathanielw.github.io/party-ify/)
 
 Website that turns any image into a GIF in the style of the party-parrot emoji.
 
