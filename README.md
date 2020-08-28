@@ -31,3 +31,4 @@ Your app is ready to be deployed!
 See LICENSE.txt for license text.
 
 - Uses [GIF.js](https://github.com/jnordberg/gif.js) to generate GIFs, used under the MIT license
+- Favicon is from [Noto-Emoji](https://github.com/googlefonts/noto-emoji), used under the Apache license 2.0.
