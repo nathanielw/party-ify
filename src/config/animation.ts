@@ -1,6 +1,7 @@
 export const waveStyles = {
 	classic: 'Classic',
 	centered: 'Centered',
+	bounce: 'Bounce/bop',
 };
 
 export const blendModes = {
@@ -96,6 +97,89 @@ export function getTransformationMatrices(
 				[1, 0, -0.315 * magnitude, 1 - (1 - 0.75) * magnitude, 47.25 * magnitude, 37.3 * verticalAnchor * magnitude],
 				[1, 0, -0.326 * magnitude, 1 - (1 - 0.84) * magnitude, 48.94 * magnitude, 23.813 * verticalAnchor * magnitude],
 				[1, 0, -0.223 * magnitude, 1 - (1 - 0.944) * magnitude, 33.375 * magnitude, 8.43 * verticalAnchor * magnitude],
+			];
+		case 'bounce':
+			return [
+				[
+					1 - (1 - 0.947) * magnitude,
+					0,
+					0,
+					1 - (1 - 1.22) * magnitude,
+					5.35 * magnitude,
+					-32.43 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 0.952) * magnitude,
+					0,
+					0,
+					1 - (1 - 1.182) * magnitude,
+					4.85 * magnitude,
+					-27.189 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 0.97) * magnitude,
+					0,
+					0,
+					1 - (1 - 1.152) * magnitude,
+					3.01 * magnitude,
+					-22.699 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 1.002) * magnitude,
+					0,
+					0,
+					1 - (1 - 1.087) * magnitude,
+					-0.167 * magnitude,
+					-12.97 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 1.062) * magnitude,
+					0,
+					0,
+					1 - (1 - 0.99) * magnitude,
+					-6.187 * magnitude,
+					1.49 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 1.122) * magnitude,
+					0,
+					0,
+					1 - (1 - 0.898) * magnitude,
+					-12.207 * magnitude,
+					15.22 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 1.15) * magnitude,
+					0,
+					0,
+					1 - (1 - 0.847) * magnitude,
+					-15.05 * magnitude,
+					22.95 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 1.167) * magnitude,
+					0,
+					0,
+					1 - (1 - 0.84) * magnitude,
+					-16.72 * magnitude,
+					23.947 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 1.127) * magnitude,
+					0,
+					0,
+					1 - (1 - 0.902) * magnitude,
+					-12.71 * magnitude,
+					14.72 * verticalAnchor * magnitude,
+				],
+				[
+					1 - (1 - 0.98) * magnitude,
+					0,
+					0,
+					1 - (1 - 1.11) * magnitude,
+					2.17 * magnitude,
+					-16.71 * verticalAnchor * magnitude,
+				],
 			];
 		case 'classic':
 			return [
