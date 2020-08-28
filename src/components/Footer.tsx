@@ -11,6 +11,9 @@ export default function Footer(): JSX.Element {
 				made with <img src={`${process.env.PUBLIC_URL}/heart.gif`} alt='love' className='Footer__Icon' /> by{' '}
 				<a href='https://twitter.com/Nathanielnw'>Nate Watson</a>
 			</p>
+			<p className='Footer__Paragraph'>
+				<a href='https://github.com/nathanielw/party-ify'>Source on GitHub</a>
+			</p>
 		</footer>
 	);
 }
