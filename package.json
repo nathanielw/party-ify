@@ -2,6 +2,7 @@
   "name": "party-ify",
   "version": "0.0.1",
   "description": "Website that turns any image into a party-parrot style gif",
+  "license": "MIT",
   "main": "src/index.tsx",
   "dependencies": {
     "react": "^16.13.1",

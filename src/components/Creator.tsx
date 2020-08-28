@@ -410,7 +410,7 @@ export default function Creator(): JSX.Element {
 
 		const gifRenderer = new window.GIF({
 			workers: 4,
-			workerScript: '/vendor/gif.worker.js',
+			workerScript: `${process.env.PUBLIC_URL}/vendor/gifjs/gif.worker.js`,
 			width,
 			height,
 			transparent: 0x00000000,
