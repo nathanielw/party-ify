@@ -8,7 +8,7 @@ export default function Footer(): JSX.Element {
 				<a href='https://cultofthepartyparrot.com/'>Cult of the Party Parrot</a>
 			</p>
 			<p className='Footer__Paragraph'>
-				made with <img src='/heart.gif' alt='love' className='Footer__Icon' /> by{' '}
+				made with <img src={`${process.env.PUBLIC_URL}/heart.gif`} alt='love' className='Footer__Icon' /> by{' '}
 				<a href='https://twitter.com/Nathanielnw'>Nate Watson</a>
 			</p>
 		</footer>
