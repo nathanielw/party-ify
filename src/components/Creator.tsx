@@ -436,6 +436,10 @@ export default function Creator(): JSX.Element {
 					<>
 						<p>Right click / long-press on the image below, choose save, and get the party started!</p>
 						<img className='Output__Image' alt='' src={outputImageBlobUrl} />
+						<p>
+							Please be considerate of others when using any images from here, particularly on platforms with no option
+							to disable animated emoji.
+						</p>
 					</>
 				)}
 			</div>

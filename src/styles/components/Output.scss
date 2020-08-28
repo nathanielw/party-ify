@@ -2,7 +2,9 @@
 
 .Output {
 	text-align: center;
-	margin-top: spacing.$v;
+	margin-top: spacing.$v * 2;
+	text-transform: lowercase;
+	line-height: 1.5;
 }
 
 .Output__Image {
