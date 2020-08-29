@@ -1,0 +1,36 @@
+@use '../core/colours';
+@use '../core/type';
+@use '../core/spacing';
+
+.EmojiInput {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	margin-top: spacing.$v * 2;
+}
+
+.EmojiInput__Label {
+	font-family: type.$familyBody;
+	font-weight: 700;
+	text-transform: uppercase;
+	color: colours.$flamingoPink;
+}
+
+.EmojiInput__LabelHelp {
+	display: block;
+	font-size: 0.75rem;
+	color: #000;
+}
+
+.EmojiInput__Input {
+	width: 4rem;
+	padding: 18px 0;
+	margin-left: spacing.$h;
+	line-height: 1;
+	text-align: center;
+	font-size: 1rem;
+	background: #fff;
+	border-radius: 11px;
+	border: none;
+}

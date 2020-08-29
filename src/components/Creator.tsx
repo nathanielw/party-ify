@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, ChangeEvent } from 'react';
 import FileSelector from './FileSelector';
 import MessagePreview from './MessagePreview';
 import Settings, { SettingsValues, defaultSettings, NONE_COLOUR_NAME } from './Settings';
-import { frameCount, getTransformationMatrices, colours, colourLabels } from '../config/animation';
+import { frameCount, getTransformationMatrices, colours } from '../config/animation';
 
 const maxWidth = 100;
 const maxHeight = maxWidth;
@@ -137,7 +137,7 @@ function getImageSizing(imageMeta: ImageMeta): ImageSizing {
 function prepForRender(
 	imageSizing: ImageSizing,
 	preProcessedImageCtx: CanvasRenderingContext2D,
-	image: HTMLImageElement,
+	image: HTMLImageElement | HTMLCanvasElement,
 	settings: SettingsValues
 ) {
 	preProcessedImageCtx.drawImage(
@@ -278,7 +278,15 @@ export default function Creator(): JSX.Element {
 		...defaultSettings,
 	});
 
-	const [image] = useState<HTMLImageElement>(new Image());
+	const [imageElement] = useState<HTMLImageElement>(new Image());
+	const [imageSource, setImageSource] = useState<HTMLImageElement | HTMLCanvasElement | null>(null);
+	const [emojiCanvas] = useState<HTMLCanvasElement>(() => {
+		const canvas = document.createElement('canvas');
+		canvas.width = 200;
+		canvas.height = 200;
+
+		return canvas;
+	});
 	const [imagePrepCanvas] = useState<HTMLCanvasElement>(document.createElement('canvas'));
 	const [imageMeta, setImageMeta] = useState<ImageMeta>({ loaded: false, width: 0, height: 0 });
 	const [lastRenderIteration, setLastRenderIteration] = useState(0);
@@ -289,17 +297,50 @@ export default function Creator(): JSX.Element {
 
 	const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 	const outputElementRef = useRef<HTMLDivElement>(null);
+	const emojiInputRef = useRef<HTMLInputElement>(null);
 
 	const onFileSelected = (file: File | undefined) => {
-		image.src = URL.createObjectURL(file);
+		imageElement.src = URL.createObjectURL(file);
 
-		image.onload = () => {
+		if (emojiInputRef.current) {
+			emojiInputRef.current.value = '';
+		}
+
+		imageElement.onload = () => {
 			setImageMeta({
 				loaded: true,
-				width: image.width,
-				height: image.height,
+				width: imageElement.width,
+				height: imageElement.height,
 			});
+
+			setImageSource(imageElement);
 		};
+
+		// Clear the existing output, to avoid confusion
+		setOutputImageBlobUrl(null);
+	};
+
+	const onTextEntered = (event: ChangeEvent) => {
+		const ctx = emojiCanvas.getContext('2d');
+		const value = (event.target as HTMLInputElement).value;
+
+		if (!ctx || value.trim().length <= 0) {
+			return;
+		}
+
+		ctx.clearRect(0, 0, emojiCanvas.width, emojiCanvas.height);
+		ctx.textBaseline = 'middle';
+		ctx.textAlign = 'center';
+		ctx.font = 'bold 100px sans-serif';
+		ctx.fillText(` ${value} `, emojiCanvas.width / 2, emojiCanvas.height / 2);
+
+		setImageMeta({
+			loaded: true,
+			width: emojiCanvas.width,
+			height: emojiCanvas.height,
+		});
+
+		setImageSource(emojiCanvas);
 
 		// Clear the existing output, to avoid confusion
 		setOutputImageBlobUrl(null);
@@ -329,7 +370,7 @@ export default function Creator(): JSX.Element {
 		const previewCanvas = previewCanvasRef.current;
 		const previewCanvasCtx = previewCanvas?.getContext('2d');
 
-		if (!imageMeta.loaded || !imagePrepCtx || !previewCanvas || !previewCanvasCtx) {
+		if (!imageSource || !imagePrepCtx || !previewCanvas || !previewCanvasCtx) {
 			return;
 		}
 
@@ -341,7 +382,7 @@ export default function Creator(): JSX.Element {
 		imagePrepCanvas.width = canvasWidth;
 		imagePrepCanvas.height = canvasHeight;
 
-		prepForRender(imageSizing, imagePrepCtx, image, settings);
+		prepForRender(imageSizing, imagePrepCtx, imageSource, settings);
 		const cachedData = generateCachedFrames(settings, imageSizing, imagePrepCanvas);
 		setCachedFrameData(cachedData);
 
@@ -391,7 +432,7 @@ export default function Creator(): JSX.Element {
 				setLastRenderTime(lastUpdatedAt);
 			}
 		};
-	}, [imageMeta, settings]);
+	}, [imageSource, imageMeta, settings]);
 
 	const generateGif = () => {
 		if (!cachedFrameData || !window.GIF) {
@@ -433,6 +474,20 @@ export default function Creator(): JSX.Element {
 	return (
 		<section className='Creator'>
 			<FileSelector onFileSelected={onFileSelected} />
+
+			<div className='EmojiInput'>
+				<label htmlFor='emoji-input' className='EmojiInput__Label'>
+					Or type an emoji <span className='EmojiInput__LabelHelp'>(ctrl+cmd+space on Mac)</span>
+				</label>
+				<input
+					className='EmojiInput__Input'
+					id='emoji-input'
+					type='text'
+					maxLength={4}
+					onChange={onTextEntered}
+					placeholder='😄'
+				/>
+			</div>
 
 			<div className='SettingsContainer'>
 				<Settings onSettingsChanged={setSettings} />
