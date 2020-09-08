@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/party-ify/static/css/main.377b9800.chunk.css",
-    "main.js": "/party-ify/static/js/main.22586769.chunk.js",
-    "main.js.map": "/party-ify/static/js/main.22586769.chunk.js.map",
+    "main.js": "/party-ify/static/js/main.864268e1.chunk.js",
+    "main.js.map": "/party-ify/static/js/main.864268e1.chunk.js.map",
     "runtime-main.js": "/party-ify/static/js/runtime-main.5ed28f68.js",
     "runtime-main.js.map": "/party-ify/static/js/runtime-main.5ed28f68.js.map",
     "static/js/2.49ba420b.chunk.js": "/party-ify/static/js/2.49ba420b.chunk.js",
     "static/js/2.49ba420b.chunk.js.map": "/party-ify/static/js/2.49ba420b.chunk.js.map",
     "index.html": "/party-ify/index.html",
-    "precache-manifest.96ffd3cd7b8c4a142610c7929cfd9a33.js": "/party-ify/precache-manifest.96ffd3cd7b8c4a142610c7929cfd9a33.js",
+    "precache-manifest.29e6cc4468a1349c659ef35c63e7e321.js": "/party-ify/precache-manifest.29e6cc4468a1349c659ef35c63e7e321.js",
     "service-worker.js": "/party-ify/service-worker.js",
     "static/css/main.377b9800.chunk.css.map": "/party-ify/static/css/main.377b9800.chunk.css.map",
     "static/js/2.49ba420b.chunk.js.LICENSE.txt": "/party-ify/static/js/2.49ba420b.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.5ed28f68.js",
     "static/js/2.49ba420b.chunk.js",
     "static/css/main.377b9800.chunk.css",
-    "static/js/main.22586769.chunk.js"
+    "static/js/main.864268e1.chunk.js"
   ]
 }
