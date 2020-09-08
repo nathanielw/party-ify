@@ -6,7 +6,7 @@ export default function Intro(): JSX.Element {
 			<h1 className='Intro__Title'>Party-ify:</h1>
 
 			<p className='Intro__Description'>
-				Instantly* bring the party to any* image. Guaranteed* to make you boring work Slack* fun.
+				Instantly* bring the party to any* image. Guaranteed* to make your boring work Slack* fun.
 			</p>
 		</section>
 	);
